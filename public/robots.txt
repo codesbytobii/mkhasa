@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login
+Disallow: /register
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /account/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-otp
+Disallow: /account-creation-success
+
+# Prevent crawl traps and internal result pages
+Disallow: /search
+Disallow: /search?*
+Disallow: /*?sort=
+Disallow: /*?filter=
+Disallow: /*?price=
+Disallow: /*?page=
+Disallow: /*?min=
+Disallow: /*?max=
+Disallow: /*&sort=
+
+Host: https://www.mkhasa.com
+Sitemap: https://www.mkhasa.com/sitemap.xml

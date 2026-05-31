@@ -1,0 +1,19 @@
+# LLM / AI Crawling Policy for mkhasa.com
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Restrict sensitive user flows
+Disallow: /login/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-otp
+Disallow: /account-creation-success

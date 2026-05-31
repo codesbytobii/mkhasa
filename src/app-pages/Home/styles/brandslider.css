@@ -1,0 +1,45 @@
+.brands {
+    max-width: 48rem;
+    margin: auto;
+    --slide-height: 19rem;
+    --slide-spacing: 1rem;
+    --slide-size: 100%;
+  }
+  .brands_viewport {
+    overflow: hidden;
+  }
+  .brands_container {
+    display: flex;
+    touch-action: pan-y pinch-zoom;
+    margin-left: calc(var(--slide-spacing) * -1);
+  }
+  .brand_slide {
+    transform: translate3d(0, 0, 0);
+    flex: 0 0 var(--slide-size);
+    min-width: 0;
+    padding-left: var(--slide-spacing);
+  }
+  .brand_slide_img {
+    border-radius: 1.8rem;
+    display: block;
+    height: var(--slide-height);
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .brands {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+  
+  .brands_viewport {
+    overflow: hidden;
+    width: 100%;
+  }
+  
+  .brands_container {
+    display: flex;
+    will-change: transform;
+  }
+  
