@@ -100,10 +100,10 @@ export const Component = ({ initialCategoryName = "", initialCategoryData = null
       <section>
         <Wrapper className="py-6">
           <div className="text-sm text-gray-600">
-            {totalProducts} <strong>results </strong> for {categoryParam}
+            {totalProducts} <strong>results </strong> for {decodeURIComponent(categoryParam)}
           </div>
           <div className="flex items-center justify-between py-4">
-            <SectionHeader header={categoryParam} className="text-nowrap" />
+            <SectionHeader header={decodeURIComponent(categoryParam)} className="text-nowrap" />
             <Sort onClick={onClick} sort={sortBy} />
           </div>
           {status === "pending" ? (
@@ -157,7 +157,7 @@ export const Component = ({ initialCategoryName = "", initialCategoryData = null
             </>
           )}
 
-          <TopSelling />
+          {/* <TopSelling /> */}
           <Recommended />
         </Wrapper>
       </section>

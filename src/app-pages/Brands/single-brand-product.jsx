@@ -57,7 +57,7 @@ const SingleBrandProduct = ({
                 <section className="mb-8 flex-wrap flex gap-4 justify-between items-center">
                     <span>
                         {brandsProductsData?.totalProducts || initialBrandData?.totalProducts || 0}{" "}
-                        <span className="font-bold">Results</span> for {brandName}
+                        <span className="font-bold">Results</span> for {decodeURIComponent(brandName)}
                     </span>
                     <select 
                         onChange={(e) => { handleSort(e.target.value) }} 
