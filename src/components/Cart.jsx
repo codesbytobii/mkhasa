@@ -27,7 +27,7 @@ export const CartItems = ({ isCheckout }) => {
   return status === "pending" ? (
     "Loading Cart"
   ) : !data?.items || data.items.length === 0 ? (
-    <p className="pt-4">qwYou have not selected any item for purchase</p>
+    <p className="pt-4">You have not selected any item for purchase</p>
   ) : (
     <ul>
       {data.items.map((item, i) => (

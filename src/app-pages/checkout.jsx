@@ -1,5 +1,8 @@
 "use client";
 
+// import { CartItems } from "../components/Cart";
+import { CartItems as GuestCartItems } from "../components/GuestCart";
+import { useCartContext } from "../hooks/utils/useCart";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/ui/Button";
 import { Navigation } from "../components/ui/Navigation";
@@ -208,54 +211,64 @@ export const Component = () => {
 
 
 
-const CartSummary = ({
-  className,
-  isPending,
-  deliveryState,
-  payStackSelected,
-  data,
-}) => {
-  const [selectPaystack, setSelectPaystack] = useState(false);
-  const [coupon, setCoupon] = useState()
-  const [submitting, setSubmitting] = useState(false)
-  const router = useRouter()
-  const submitCoupon = async () => {
-    setSubmitting(true)
-    try {
-      const res = await axios.post("/coupon", { couponCode: coupon })
-      console.log(res.data)
-      router.push("/fake-success")
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setSubmitting(false)
+const CartSummary = ({ className, isPending, deliveryState, payStackSelected, data }) => {
+  const { user } = useAuth();
+  const { getCartFromLocalStorage, cartQuantityChanged } = useCartContext();
+  const [coupon, setCoupon] = useState();
+  const [submitting, setSubmitting] = useState(false);
+  const [guestCart, setGuestCart] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      setGuestCart(getCartFromLocalStorage());
     }
-  }
+  }, [cartQuantityChanged, user]);
+
+  const submitCoupon = async () => {
+    setSubmitting(true);
+    try {
+      const res = await axios.post("/coupon", { couponCode: coupon });
+      console.log(res.data);
+      router.push("/fake-success");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const hasItems = user ? (data?.items?.length > 0) : (guestCart?.length > 0);
+
   return (
     <div className={cn("bg-white rounded-xl p-5", className)}>
       <div className="flex items-center gap-3 border-b-2 pb-4">
         <Heading className="text-app-black">Item(s)</Heading>
       </div>
       <div>
-        <CartItems isCheckout />
-        <OrderSummary
-          state={deliveryState}
-          payStackSelected={payStackSelected}
-        />
-        <form onSubmit={(e) => {
-          e.preventDefault()
-          submitCoupon()
-        }}
+        {user ? (
+          <CartItems isCheckout />
+        ) : (
+          <GuestCartItems isCheckout />
+        )}
+        <OrderSummary state={deliveryState} payStackSelected={payStackSelected} />
+        <form
+          onSubmit={(e) => { e.preventDefault(); submitCoupon(); }}
           className="flex justify-between items-end gap-6 my-4"
         >
           <div>
             <label htmlFor="CouponCode" className="font-semibold">Coupon Code</label>
-            <input placeholder="CouponCode" id="CouponCode" onChange={(e) => setCoupon(e.target.value)} className="border-black border p-2" />
+            <input
+              placeholder="CouponCode"
+              id="CouponCode"
+              onChange={(e) => setCoupon(e.target.value)}
+              className="border-black border p-2"
+            />
           </div>
           <Button className="btn">Apply</Button>
         </form>
 
-        {!data?.items || data.items.length === 0 ? null : (
+        {hasItems && (
           <Button
             type="submit"
             form="checkout-form"
@@ -263,11 +276,7 @@ const CartSummary = ({
             className="bg-[#27D34C] text-white md:px-8 rounded-none md:py-3 w-full px-10 focus:outline-none font-bold mt-6"
           >
             {isPending ? (
-              <Icon
-                icon="svg-spinners:6-dots-rotate"
-                style={{ fontSize: 20 }}
-                className="text-center"
-              />
+              <Icon icon="svg-spinners:6-dots-rotate" style={{ fontSize: 20 }} className="text-center" />
             ) : (
               "Pay Now"
             )}

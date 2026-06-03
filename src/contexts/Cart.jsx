@@ -127,18 +127,18 @@ export const Cart = ({ children }) => {
 
   const addToCart = async ({ itemId, quantity, applyDiscount, name, price, localCartImage, series }) => {
   const userId = getUserId();
-  
+
   if (!userId) {
-    // Guest: save to localStorage instead of API
+    // Guest: save to localStorage
     const localCart = getCartFromLocalStorage();
     const existingIndex = localCart.findIndex(item => item.productId === itemId);
-    
+
     if (existingIndex !== -1) {
       localCart[existingIndex].quantity += quantity;
     } else {
       localCart.push({ productId: itemId, quantity, name, price, localCartImage, series, applyDiscount });
     }
-    
+
     saveCartToLocalStorage(localCart);
     setCartQuantity(localCart.length);
     setCartQuantityChanged(true);
@@ -174,12 +174,24 @@ export const Cart = ({ children }) => {
   };
 
   const removeFromCart = (itemId) => {
-    const userId = getUserId() || getOrGenerateSessionId();
-    setCartQuantity(prev => prev - 1)
-    remove.mutate({ userId, itemId });
-    setCanRefetch(true);
-    queryClient.invalidateQueries({ queryKey: ["cart"] });
-  };
+  const userId = getUserId();
+
+  if (!userId) {
+    // Guest: remove from localStorage
+    const localCart = getCartFromLocalStorage();
+    const updatedCart = localCart.filter(item => item.productId !== itemId);
+    saveCartToLocalStorage(updatedCart);
+    setCartQuantity(updatedCart.length);
+    setCartQuantityChanged(true);
+    return;
+  }
+
+  // Logged-in user: hit the API
+  setCartQuantity(prev => prev - 1);
+  remove.mutate({ userId, itemId });
+  setCanRefetch(true);
+  queryClient.invalidateQueries({ queryKey: ["cart"] });
+};
 
   const clearCart = () => {
     const userId = getUserId() || getOrGenerateSessionId();

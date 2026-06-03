@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "../../utils/axios";
 import { useAuth } from "../utils/useAuth";
-import { getCartFromLocalStorage } from "../../contexts/Cart";
 import { useCartContext } from "../utils/useCart";
 
 export const useCartQuery = () => {
@@ -16,17 +15,14 @@ export const useCartQuery = () => {
 
   async function getCart() {
     if (!userId) return { items: [] };
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${userId}`);
+    const response = await axios.get(`cart/${userId}`); // removed NEXT_PUBLIC_BASE_URL prefix
     return response?.data;
   }
 
   return useQuery({
-    queryKey: ["cart", userId],  // <-- IMPORTANT FIX
+    queryKey: ["cart", userId],
     queryFn: getCart,
     enabled: !!userId,
     refetchInterval: 1000 * 60,
   });
 };
-
-
-

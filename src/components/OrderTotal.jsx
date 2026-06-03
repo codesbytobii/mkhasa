@@ -124,18 +124,33 @@
 
 "use client";
 
-import { formatCurrency } from "../utils/lib";
-import { Button } from "./ui/Button";
+import { useAuth } from "../hooks/utils/useAuth";
+import { useCartContext } from "../hooks/utils/useCart";
 import { useCartQuery } from "../hooks/query/useCart";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { formatCurrency } from "../utils/lib";
+import { Button } from "./ui/Button";
 
 export const OrderTotal = ({ partial }) => {
+  const { user } = useAuth();
+  const { getCartFromLocalStorage, cartQuantityChanged } = useCartContext();
   const { data } = useCartQuery();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const hasItems = (data?.items?.length || 0) > 0;
+  const [guestCart, setGuestCart] = useState([]);
+
+  useEffect(() => {
+    if (!user) {
+      setGuestCart(getCartFromLocalStorage());
+    }
+  }, [cartQuantityChanged, user]);
+
+  const hasItems = user
+    ? (data?.items?.length > 0)
+    : (guestCart?.length > 0);
 
   const proceed = () => {
     queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -167,18 +182,34 @@ export const OrderTotal = ({ partial }) => {
 
 export const OrderSummary = ({ state, partial, payStackSelected }) => {
   const { status, data } = useCartQuery();
-  const DELIVERY_FEE = 2500;
+  const { user } = useAuth();
+  const { cartQuantityChanged, getCartFromLocalStorage } = useCartContext();
+  const [deliveryFee] = useState(2500);
+  const [guestCart, setGuestCart] = useState([]);
+  const [guestSubtotal, setGuestSubtotal] = useState(0);
 
-  if (status === "pending") {
+  const isGuest = !user;
+
+  useEffect(() => {
+    if (isGuest) {
+      const cart = getCartFromLocalStorage();
+      setGuestCart(cart);
+      const total = cart.reduce(
+        (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
+        0
+      );
+      setGuestSubtotal(total);
+    }
+  }, [cartQuantityChanged, isGuest]);
+
+  if (!isGuest && status === "pending") {
     return <p className="text-sm text-gray-500">Loading cart...</p>;
   }
 
-  const items = data?.items || [];
-  if (items.length === 0) return null;
+  const subtotal = isGuest ? guestSubtotal : (data?.subTotal || 0);
+  const items = isGuest ? guestCart : data?.items;
 
-  // subTotal comes from server for both guests (sessionId) and logged-in users
-  const subtotal = data?.subTotal ||
-    items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+  if (!items || items.length === 0) return null;
 
   return (
     <div className="font-normal pt-2 md:p-0">
@@ -190,7 +221,7 @@ export const OrderSummary = ({ state, partial, payStackSelected }) => {
         </div>
         <div className="flex justify-between py-2">
           <span className="font-semibold">Delivery Fee:</span>
-          <span className="font-semibold">₦{DELIVERY_FEE.toLocaleString()}</span>
+          <span className="font-semibold">₦{deliveryFee.toLocaleString()}</span>
         </div>
         {payStackSelected && (
           <div className="flex justify-between py-2">
@@ -201,7 +232,7 @@ export const OrderSummary = ({ state, partial, payStackSelected }) => {
         <div className="flex justify-between py-2 border-t mt-2 pt-4">
           <span className="font-semibold text-lg">Total:</span>
           <span className="font-semibold text-lg">
-            {formatCurrency(subtotal + DELIVERY_FEE, "NGN")}
+            {formatCurrency(subtotal + deliveryFee, "NGN")}
           </span>
         </div>
       </div>
