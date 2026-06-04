@@ -8,7 +8,7 @@ import { useInfiniteProducts } from "../hooks/query/useProducts";
 import { Product } from "../components/ProductCard";
 import { Icon } from "@iconify/react";
 import { Sort } from "../components/Sort";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Recommended } from "../components/Recommended";
 import { TopSelling } from "../components/TopSelling";
 import axios from "axios";
@@ -21,6 +21,10 @@ export const Component = ({ initialCategoryName = "", initialCategoryData = null
   const [categoryData, setCategoryData] = useState(null);
   const [isLoading, setIsLoading] = useState(!initialCategoryData);
   const searchParams = useSearchParams();
+
+  //new
+  const router = useRouter();
+
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -74,18 +78,19 @@ export const Component = ({ initialCategoryName = "", initialCategoryData = null
   });
 
   const onClick = (term) => {
-    if (typeof term !== "string") return;
-    if (!term) {
-      return setSearchParams({});
-    }
+    const params = new URLSearchParams(searchParams.toString());
+
     if (term.startsWith("sort")) {
-      searchParams.has("filter") && searchParams.delete("filter");
-      setSearchParams({ ...searchParams, sort: term.split("-")[1] });
+      params.delete("filter");
+      params.set("sort", term.split("-")[1]);
     }
+
     if (term.startsWith("filter")) {
-      searchParams.has("sort") && searchParams.delete("sort");
-      setSearchParams({ ...searchParams, filter: term.split("-")[1] });
+      params.delete("sort");
+      params.set("filter", term.split("-")[1]);
     }
+
+    router.push(`?${params.toString()}`);
   };
 
   // Access total count from the first page data
