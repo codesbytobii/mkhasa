@@ -68,7 +68,10 @@ const Navbar = ({ initialCategories = [] }) => {
           </button>
           <Logo />
           <div className="flex items-center gap-4">
-            <CartButton />
+            {/* <CartButton /> */}
+            <Link href="/cart" className="flex gap-2 items-center">
+              <CartButton /> Cart
+            </Link>
             <Link href="/account" aria-label="Account">
               <Icon icon="mdi:account" style={{ fontSize: 24 }} />
             </Link>

@@ -15,7 +15,14 @@ export const toBrandPath = (name = "") => {
 };
 
 export const toCategoryPath = (name = "") => {
+  //const value = cleanValue(name);
   const value = cleanValue(name);
+
+  if (!value) return "/categories";
+
+  // prevent double encoding
+  const decoded = decodeURIComponent(value);
+  return `/categories/${encodeURIComponent(decoded)}`;
   return value ? `/categories/${encodeURIComponent(value)}` : "/categories";
 };
 
