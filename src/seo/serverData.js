@@ -124,19 +124,25 @@ export async function getBrandProductsServerData(brandName, page = 1) {
   );
 }
 
-export async function getCategoryProductsServerData(categoryName, page = 1) {
+export async function getCategoryProductsServerData(categoryName, page = 1, pageSize = 20) {
   const decoded = safeDecode(categoryName).trim();
   if (!decoded) return null;
+  // return await apiGet(
+  //   `product/category/${encodeURIComponent(decoded)}?page=${Number(page) || 1}`
+  // );
   return await apiGet(
-    `product/category/${encodeURIComponent(decoded)}?page=${Number(page) || 1}`
+    `product/category/${encodeURIComponent(decoded)}?page=${page}&pageSize=${pageSize}`
   );
 }
 
-export async function getAppealProductsServerData(appealName, page = 1) {
+export async function getAppealProductsServerData(appealName, page = 1, pageSize = 20) {
   const decoded = safeDecode(appealName).trim();
   if (!decoded) return null;
+  // return await apiGet(
+  //   `product/appeal/${encodeURIComponent(decoded)}?page=${Number(page) || 1}`
+  // );
   return await apiGet(
-    `product/appeal/${encodeURIComponent(decoded)}?page=${Number(page) || 1}`
+    `product/appeal/${encodeURIComponent(decoded)}?page=${page}&pageSize=${pageSize}`
   );
 }
 

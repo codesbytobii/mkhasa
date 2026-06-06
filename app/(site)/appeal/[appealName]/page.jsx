@@ -36,7 +36,7 @@ export default async function AppealPage({ params }) {
   const raw = Array.isArray(params?.appealName) ? params.appealName[0] : params?.appealName || "";
   if (!raw) notFound();
 
-  const appealData = await getAppealProductsServerData(raw, 1);
+  const appealData = await getAppealProductsServerData(raw, 1, 20);
 
   return (
     <>

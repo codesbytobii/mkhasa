@@ -68,7 +68,6 @@ const Navbar = ({ initialCategories = [] }) => {
           </button>
           <Logo />
           <div className="flex items-center gap-4">
-            {/* <CartButton /> */}
             <Link href="/cart" className="flex gap-2 items-center">
               <CartButton /> Cart
             </Link>

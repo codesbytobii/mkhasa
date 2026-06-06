@@ -21,9 +21,11 @@ const useAppeal = ({ initialData = null, initialAppealName = "" } = {}) => {
   const { data: appealProducts, isFetching: fetchingAppeal } = useQuery({
     queryKey: ["appealProducts", resolvedAppealName, sorted, currentPage],
     queryFn: async () => {
+      const pageSize = 20;
+
       const url = sorted
-        ? `${BASE_URL}/product/appeal/${sorted}/${resolvedAppealName}?page=${currentPage}`
-        : `${BASE_URL}/product/appeal/${resolvedAppealName}?page=${currentPage}`;
+        ? `${BASE_URL}/product/appeal/${sorted}/${resolvedAppealName}?page=${currentPage}&pageSize=${pageSize}`
+        : `${BASE_URL}/product/appeal/${resolvedAppealName}?page=${currentPage}&pageSize=${pageSize}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch appeal products");
       return res.json();

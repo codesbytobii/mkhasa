@@ -39,7 +39,7 @@ export const Component = ({ initialCategoryName = "", initialCategoryData = null
       setIsLoading(true);
       try {
         // You might need to adjust this endpoint based on your API
-        const response = await axios(`${baseUrl}/product/category/${categoryParam}`);
+        const response = await axios(`${baseUrl}/product/category/${categoryParam}?pageSize=20`);
         setCategoryData(response.data);
         setCategory(categoryParam);
       } catch (error) {
@@ -59,10 +59,10 @@ export const Component = ({ initialCategoryName = "", initialCategoryData = null
   }, [categoryParam, category, baseUrl, initialCategoryData]);
 
   const url = filterBy
-    ? `product/category/${categoryParam}/appeal/${filterBy}?`
+    ? `product/category/${categoryParam}/appeal/${filterBy}?pageSize=20`
     : sortBy
-      ? `product/category/${sortBy}/${categoryParam}?`
-      : `product/category/${categoryParam}?`;
+      ? `product/category/${sortBy}/${categoryParam}?pageSize=20`
+      : `product/category/${categoryParam}?pageSize=20`;
 
   const {
     data,
