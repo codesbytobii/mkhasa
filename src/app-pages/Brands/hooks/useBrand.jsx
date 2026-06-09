@@ -4,7 +4,9 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
 
 const useBrand = ({ initialData = null, initialBrandName = "" } = {}) => {
   const { brandName: routeBrandName } = useParams();

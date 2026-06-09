@@ -18,6 +18,10 @@ import useLongPress from "../hooks/useLongPress";
 import { Sort } from "../components/Sort";
 import { Sales } from "./Sales";
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
+
 export const Home = () => {
   // console.log("this is Home");
   const ref = useRef();
@@ -26,7 +30,7 @@ export const Home = () => {
   useEffect(() => {
     async function fetchFeatures() {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/featured/product`,
+        `${API_BASE}/featured/product`,
         { headers: { "Content-Type": "application/json" } }
       );
 
@@ -51,7 +55,7 @@ export const Home = () => {
   useEffect(() => {
     async function fetchLatestFeatures() {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/latest/product`,
+        `${API_BASE}/latest/product`,
         { headers: { "Content-Type": "application/json" } }
       );
 

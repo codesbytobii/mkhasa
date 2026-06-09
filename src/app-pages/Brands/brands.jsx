@@ -6,7 +6,9 @@ import { Wrapper } from "../../components/ui/Wrapper";
 import Link from "next/link";
 import { toBrandPath } from "../../utils/paths";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
 
 const Brands = ({ initialBrands = [] }) => {
   const [numOfBrands, setNumOfBrands] = useState(20);

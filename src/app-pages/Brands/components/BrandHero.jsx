@@ -3,7 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Wrapper } from "../../../components/ui/Wrapper";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
 
 const BrandHero = ({ brandName }) => {
   const { data: brands = [] } = useQuery({

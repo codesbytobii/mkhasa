@@ -12,7 +12,9 @@ import { useCartContext } from "../hooks/utils/useCart";
 import { toAppealPath, toCategoryPath, toProductPath } from "../utils/paths";
 
 const APPEAL = ["Men", "Women", "Unisex"];
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "";
+const API_BASE =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
 
 const Navbar = ({ initialCategories = [] }) => {
   const router = useRouter();

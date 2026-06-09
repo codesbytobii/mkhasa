@@ -1,9 +1,16 @@
 import path from "path";
 
+const DEFAULT_API_BASE = "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
+const DEFAULT_SITE_URL = "https://www.mkhasa.com";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   trailingSlash: false,
+  env: {
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || DEFAULT_API_BASE,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
