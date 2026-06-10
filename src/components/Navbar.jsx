@@ -26,7 +26,9 @@ const Navbar = ({ initialCategories = [] }) => {
   const handleSearch = async (searchQuery) => {
     if (!searchQuery) return;
     try {
-      const res = await fetch(`${API_BASE}/new/search?name=${searchQuery}`);
+      const res = await fetch(
+        `${API_BASE}/search?name=${encodeURIComponent(searchQuery)}&limit=8`
+      );
       const data = await res.json();
       setResults(data.products ?? []);
     } catch {
