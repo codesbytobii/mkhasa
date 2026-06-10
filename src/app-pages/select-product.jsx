@@ -18,6 +18,7 @@ import { format } from "../utils/lib";
 import { Product } from "../components/ProductCard";
 import useLongPress from "../hooks/utils/useLongPress";
 import { icons } from "../data/Icons";
+import { useRecentlyViewed } from "../hooks/utils/useRecentlyViewed";
 import {
   Select,
   SelectContent,
@@ -59,7 +60,12 @@ export const Component = ({ initialProduct: serverProduct }) => {
   const [selectedDiscount, setSelectedDiscount] = useState();
   const [selectedQuantity, setSelectedQuantity] = useState();
   const [seriesProducts, setSeriesProducts] = useState([]);
+  const [exploreBrands, setExploreBrands] = useState([]);
   const { toggleNotificationDialog } = useNotificationDialogContext();
+
+  //Save current product to localStorage and get the filtered recently viewed list
+  const recentlyViewed = useRecentlyViewed(product);
+
 
   const disVar = [
     { quantity: "1_2", packs: "1 - 2", dis: 0 },
@@ -105,6 +111,20 @@ export const Component = ({ initialProduct: serverProduct }) => {
       setSeriesProducts([]);
     }
   }, [product?.series]);
+
+  const fetchExploreBrands = useCallback(async () => {
+    if (!product?.brand) return;
+    try {
+      const response = await axios.get(`${BASE_URL}/product/brand/${product.brand}?page=1&pageSize=10`);
+      setExploreBrands(response?.data?.products || []);
+    } catch {
+      setExploreBrands([]);
+    }
+  }, [product?.brand]);
+
+  useEffect(() => {
+    fetchExploreBrands();
+  }, [fetchExploreBrands]);
 
   useEffect(() => {
     if (product?.series) fetchSeriesProducts();
@@ -582,6 +602,60 @@ export const Component = ({ initialProduct: serverProduct }) => {
               </ul>
             </div>
           )}
+
+          {/* EXPLORE BRANDS */}
+
+          {Array.isArray(exploreBrands) && exploreBrands.length > 0 && (
+            <div className="mb-4">
+              <div className="flex justify-between gap-2 mt-8 overflow-hidden">
+                <Heading className="text-lg font-bold text-app-black">Explore Brands</Heading>
+              </div>
+              <ul className="pt-8 w-full gap-4 flex sm:flex-nowrap overflow-auto sm:no-scrollbar" ref={ref}>
+                {exploreBrands.map((item) => (
+                  <li className="" key={item?._id}>
+                    <Product
+                      key={item?._id}
+                      id={item?._id}
+                      product={item?.name || "Product Title"}
+                      name={item?.name || "Product Title"}
+                      category={item?.category}
+                      originalPrice={item?.price}
+                      available={item?.available}
+                      image={item?.productImage || item?.mainImage}
+                      className="w-[13rem] md:w-[17rem]"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* RECENTLY VIEWED */}
+          {Array.isArray(recentlyViewed) && recentlyViewed.length > 0 && (
+            <div className="mb-4">
+              <div className="flex justify-between gap-2 mt-8 overflow-hidden">
+                <Heading className="text-lg font-bold text-app-black">Recently Viewed</Heading>
+              </div>
+              <ul className="pt-8 w-full gap-4 flex sm:flex-nowrap overflow-auto sm:no-scrollbar" ref={ref}>
+                {recentlyViewed.map((item) => (
+                  <li className="" key={item?._id}>
+                    <Product
+                      key={item?._id}
+                      id={item?._id}
+                      product={item?.name || "Product Title"}
+                      name={item?.name || "Product Title"}
+                      category={item?.category}
+                      originalPrice={item?.price}
+                      available={item?.available}
+                      image={item?.productImage || item?.mainImage}
+                      className="w-[13rem] md:w-[17rem]"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
 
           {/* FBT */}
           {product?.FBT?.length > 0 && (
