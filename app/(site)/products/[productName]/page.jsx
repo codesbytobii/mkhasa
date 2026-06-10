@@ -5,6 +5,42 @@ import { toProductPath, toProductSlug } from "@/utils/paths";
 import { notFound, permanentRedirect } from "next/navigation";
 import ProductPageClient from "./page.client";
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
+
+async function getProductSections(product) {
+  const results = await Promise.allSettled([
+    // Series products: the small variant/colour carousel
+    product?.series
+      ? fetch(`${BASE_URL}/product/series/${encodeURIComponent(product.series)}`, {
+          next: { revalidate: 3600 },
+        })
+          .then((r) => r.json())
+          .then((d) => d?.products ?? [])
+      : Promise.resolve([]),
+
+    // Explore brands: other products from the same brand
+    product?.brand
+      ? fetch(
+          `${BASE_URL}/product/brand/${encodeURIComponent(product.brand)}?page=1&pageSize=10`,
+          { next: { revalidate: 3600 } }
+        )
+          .then((r) => r.json())
+          .then((d) => d?.products ?? [])
+      : Promise.resolve([]),
+  ]);
+
+  return {
+    // Feeds the series carousel (small round thumbnails)
+    initialSeriesProducts:
+      results[0].status === "fulfilled" ? results[0].value : [],
+    // Feeds the Explore Brands row
+    initialExploreBrands:
+      results[1].status === "fulfilled" ? results[1].value : [],
+  };
+}
+
 export async function generateMetadata({ params }) {
   const raw = Array.isArray(params?.productName)
     ? params.productName[0]
@@ -55,6 +91,11 @@ export default async function ProductPage({ params }) {
   }
 
   const canonicalPath = toProductPath(canonicalSlug || raw);
+
+  // Fetch series carousel + brand row on the server
+  const { initialSeriesProducts, initialExploreBrands } =
+    await getProductSections(initialProduct);
+
   const images = [
     initialProduct?.mainImage,
     initialProduct?.firstImage,
@@ -90,6 +131,7 @@ export default async function ProductPage({ params }) {
 
   return (
     <>
+      {/* Primary heading for crawlers — visually hidden */}
       <h1 className="sr-only">
         {initialProduct?.name || formatSlugForTitle(raw) || "Product details"}
       </h1>
@@ -97,7 +139,12 @@ export default async function ProductPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
-      <ProductPageClient productName={raw} initialProduct={initialProduct} />
+      <ProductPageClient
+        productName={raw}
+        initialProduct={initialProduct}
+        initialSeriesProducts={initialSeriesProducts}
+        initialExploreBrands={initialExploreBrands}
+      />
     </>
   );
 }

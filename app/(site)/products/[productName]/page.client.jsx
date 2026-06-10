@@ -1,12 +1,17 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { Component as ProductPageComponent } from "@/app-pages/select-product";
 
-const ProductPageComponent = dynamic(
-  () => import("@/app-pages/select-product").then((mod) => mod.Component),
-  { ssr: false }
-);
-
-export default function ProductPageClient({ initialProduct }) {
-  return <ProductPageComponent initialProduct={initialProduct} />;
+export default function ProductPageClient({
+  initialProduct,
+  initialSeriesProducts,
+  initialExploreBrands,
+}) {
+  return (
+    <ProductPageComponent
+      initialProduct={initialProduct}
+      initialSeriesProducts={initialSeriesProducts}
+      initialExploreBrands={initialExploreBrands}
+    />
+  );
 }

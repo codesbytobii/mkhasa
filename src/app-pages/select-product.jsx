@@ -45,7 +45,11 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL ||
   "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
 
-export const Component = ({ initialProduct: serverProduct }) => {
+export const Component = ({
+  initialProduct: serverProduct,
+  initialSeriesProducts, // server-fetched series carousel items
+  initialExploreBrands,  // server-fetched brand row items
+}) => {
   const [product, setProduct] = useState(serverProduct || null);
   const { decreaseItem, increaseItem, addToCart, getCartFromLocalStorage } = useCartContext();
   const { getUserId } = useAuth();
@@ -59,13 +63,16 @@ export const Component = ({ initialProduct: serverProduct }) => {
   const [showDiscount, setShowDiscount] = useState(false);
   const [selectedDiscount, setSelectedDiscount] = useState();
   const [selectedQuantity, setSelectedQuantity] = useState();
-  const [seriesProducts, setSeriesProducts] = useState([]);
-  const [exploreBrands, setExploreBrands] = useState([]);
+
+  // Seeded from server — crawlers see these immediately in the HTML.
+  // Client-side useEffects below will refresh them after hydration.
+  const [seriesProducts, setSeriesProducts] = useState(initialSeriesProducts || []);
+  const [exploreBrands, setExploreBrands] = useState(initialExploreBrands || []);
+
   const { toggleNotificationDialog } = useNotificationDialogContext();
 
-  //Save current product to localStorage and get the filtered recently viewed list
+  // Saves current product to localStorage; returns list excluding this product
   const recentlyViewed = useRecentlyViewed(product);
-
 
   const disVar = [
     { quantity: "1_2", packs: "1 - 2", dis: 0 },
@@ -101,6 +108,7 @@ export const Component = ({ initialProduct: serverProduct }) => {
     fetchProduct();
   }, [productName]);
 
+  // Refreshes series carousel on the client after hydration
   const fetchSeriesProducts = useCallback(async () => {
     if (!product?.series) return;
     setCount(1);
@@ -112,6 +120,7 @@ export const Component = ({ initialProduct: serverProduct }) => {
     }
   }, [product?.series]);
 
+  // Refreshes brand row on the client after hydration
   const fetchExploreBrands = useCallback(async () => {
     if (!product?.brand) return;
     try {
@@ -260,17 +269,12 @@ export const Component = ({ initialProduct: serverProduct }) => {
 
   return (
     <>
-      <noscript>
-        <div>
-          <h1>{product?.name}</h1>
-          <ul>
-            <li><Link href={toCategoryPath(product?.category)}>View all {product?.category}</Link></li>
-            {product?.similar?.map((p) => (
-              <li key={p._id}><Link href={toProductPath(p.name)}>{p.name}</Link></li>
-            ))}
-          </ul>
-        </div>
-      </noscript>
+      {/*
+        noscript removed: the component now SSRs so this was producing a
+        duplicate h1 alongside the sr-only one in page.jsx.
+        Crawler-visible links (category, similar products) are rendered
+        in the main SSR output below.
+      */}
 
       <Wrapper className="bg-white w-full js-enabled">
         <Link href={toCategoryPath(product?.category ?? "perfume")} className="flex items-center gap-1 text-sm text-[#555] mt-4">
@@ -577,7 +581,7 @@ export const Component = ({ initialProduct: serverProduct }) => {
       <div>
         <ProductDetail productId={product?._id} product={product} />
         <Wrapper>
-          {/* Similar Products */}
+          {/* Dupes — rendered from product.similar which is in initialProduct (SSR) */}
           {Array.isArray(product?.similar) && product.similar.length > 0 && (
             <div className="mb-4">
               <div className="flex justify-between gap-2 mt-8 overflow-hidden">
@@ -603,8 +607,7 @@ export const Component = ({ initialProduct: serverProduct }) => {
             </div>
           )}
 
-          {/* EXPLORE BRANDS */}
-
+          {/* Explore Brands — seeded from initialExploreBrands (SSR) */}
           {Array.isArray(exploreBrands) && exploreBrands.length > 0 && (
             <div className="mb-4">
               <div className="flex justify-between gap-2 mt-8 overflow-hidden">
@@ -630,7 +633,7 @@ export const Component = ({ initialProduct: serverProduct }) => {
             </div>
           )}
 
-          {/* RECENTLY VIEWED */}
+          {/* Recently Viewed — client-only (localStorage), intentionally not SSR'd */}
           {Array.isArray(recentlyViewed) && recentlyViewed.length > 0 && (
             <div className="mb-4">
               <div className="flex justify-between gap-2 mt-8 overflow-hidden">
@@ -655,7 +658,6 @@ export const Component = ({ initialProduct: serverProduct }) => {
               </ul>
             </div>
           )}
-
 
           {/* FBT */}
           {product?.FBT?.length > 0 && (

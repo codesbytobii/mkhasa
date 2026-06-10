@@ -4,10 +4,6 @@ import { toProductSlug } from "../../utils/paths";
 const STORAGE_KEY = "recentlyViewedProducts";
 const MAX_ITEMS = 10;
 
-/**
- * Reads the recently viewed list from localStorage.
- * Returns an empty array on any failure (SSR, quota errors, etc.)
- */
 const readStorage = () => {
   if (typeof window === "undefined") return [];
   try {
@@ -18,21 +14,15 @@ const readStorage = () => {
   }
 };
 
-/**
- * Writes the list to localStorage.
- */
 const writeStorage = (list) => {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
   } catch {
-    // quota exceeded or private browsing – fail silently
+    
   }
 };
 
-/**
- * Picks only the lightweight fields we want to persist.
- */
 const toStoredProduct = (product) => ({
   _id: product._id,
   name: product.name,
@@ -43,15 +33,6 @@ const toStoredProduct = (product) => ({
   price: product.price ?? null,
 });
 
-/**
- * useRecentlyViewed
- *
- * Call this once per product page.
- *
- * @param {object|null} product – the current product object (from state/props)
- * @returns {object[]} recentlyViewed – the stored list, excluding the current product,
- *                                      newest first, max 10 items
- */
 export function useRecentlyViewed(product) {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
 
