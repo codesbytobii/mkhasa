@@ -10,9 +10,9 @@ const CheckoutComponent = dynamic(
 
 export default function CheckoutPage() {
   return (
-    // <AuthGuard>
+    <AuthGuard>
       <CheckoutComponent />
-    // </AuthGuard>
+    </AuthGuard>
   );
 }
 
