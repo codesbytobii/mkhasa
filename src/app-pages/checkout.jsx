@@ -653,8 +653,8 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
             />
             <label htmlFor="paystack" className="flex items-center gap-2">
               <img
-                src={paystackImg}
-                className="w-18 h-18"
+                src={'/paystack-logo.png'}
+                className="w-28 h-18"
                 alt="paystack-logo"
               />
             </label>
