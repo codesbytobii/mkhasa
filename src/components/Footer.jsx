@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 
 export const Footer = () => {
   return (
-    <footer className="bg-black py-6 mt-auto text-center" id="footer">
+    <footer className="bg-black py-6 mt-auto  md:text-center" id="footer">
       <Wrapper>
         <div className="grid gap-y-5 grid-cols-1 md:grid-cols-12 items-start">
           <div className="flex justify-center md:col-span-3">
@@ -17,10 +17,10 @@ export const Footer = () => {
           </div>
 
           <div className="md:col-span-3">
-            <h2 className="text-lg font-bold mt-4 text-white text-center lg:text-left">
+            <h2 className="text-lg font-bold mt-4 text-white md:text-center lg:text-left">
               Explore Mkhasa
             </h2>
-            <ul className="text-app-ash-2 text-center lg:text-left">
+            <ul className="text-app-ash-2 md:text-center lg:text-left">
               <li>
                 <Link href="/about" className="w-full py-2 inline-block hover:text-app-red">
                   About Us
@@ -55,10 +55,10 @@ export const Footer = () => {
           </div>
 
           <div className="md:col-span-3 mt-4">
-            <h2 className="text-lg font-bold text-white text-center lg:text-left">
+            <h2 className="text-lg font-bold text-white  md:text-center lg:text-left">
               Contact Us
             </h2>
-            <div className="text-app-ash-2 mt-4 text-center lg:text-left">
+            <div className="text-app-ash-2 mt-4 md:text-center lg:text-left">
               <p className="w-full py-2 inline-block">
                 Call Us:{" "}
                 <span>
@@ -82,7 +82,7 @@ export const Footer = () => {
           </div>
 
           <div className="md:col-span-3">
-            <h2 className="text-lg font-bold text-white text-center md:pr-20 md:text-right">
+            <h2 className="text-lg font-bold text-white  md:text-center md:pr-20 md:text-right">
               Socials
             </h2>
             <ul className="flex text-app-ash-2 justify-center gap-3 md:gap-0 lg:gap-3 mt-4 md:justify-end">

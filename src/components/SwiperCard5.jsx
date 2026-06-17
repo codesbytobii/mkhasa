@@ -1,26 +1,27 @@
 
-import rayhaan from "../assets/images/lionhead.jpg";
-// import rayhaanDesktop from "../assets/images/hero section desktop (3).jpg";
+import image4 from "../assets/images/slide4desk.jpeg";
+import image4mob from "../assets/images/slide4mob.jpeg";
 import Link from "next/link";
 import { toProductPath } from "../utils/paths";
 export const SwiperCard5 = () => {
-  const rayhaanSrc = rayhaan?.src || rayhaan;
+  const image4Src = image4?.src || Assaf;
+  const image4mobSrc = image4mob?.src || Assaf;
 
   return (
 
     <div className="w-full max-h-screen rounded-3xl md:h-screen overflow-y-hidden   ">
-      <Link href={toProductPath("Rayhaan Aquatica Eau de Parfum 100ml")} style={{ display: "contents" }}>
+      <Link href={toProductPath("Assaf Attacks Eau de Parfum 150ml")} style={{ display: "contents" }}>
         <div className="bg-third-card-image h-screen">
           <div className="">
             <img
-              alt="rayhaan product image"
-              src={rayhaanSrc}
+              alt="Assaf Attacks product image"
+              src={image4Src}
               fetchPriority="high"
               className="block lg:hidden cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
             />
             <img
-              alt="rayhaan product image"
-              src={rayhaanSrc}
+              alt="Assaf Attacks product image"
+              src={image4mobSrc}
               fetchPriority="high"
               className="hidden lg:block cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
             />
