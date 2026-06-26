@@ -18,13 +18,13 @@ export const SwiperCard1 = () => {
               alt="Aura Fragrances Vanilla image"
               src={image1Src}
               fetchPriority="high"
-              className="block cursor-pointer object-cover lg:hidden bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
+              className="cursor-pointer object-cover hidden lg:block bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
             />
             <img
               alt="Aura Fragrances Vanilla image"
               src={image1mobSrc}
               fetchPriority="high"
-              className="cursor-pointer object-cover hidden lg:block bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
+              className="block cursor-pointer object-cover lg:hidden bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
             />
           </div>
         </div>

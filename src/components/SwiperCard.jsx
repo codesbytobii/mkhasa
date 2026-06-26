@@ -17,14 +17,14 @@ export const SwiperCard = () => {
            <img
              src={image2Src}
              fetchPriority="high"
-             className="block lg:hidden cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
+             className="block lg:block cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
              alt="Assaf product image"
              />
            <img
              src={image2mobSrc}
              alt="Assaf product image"
              fetchPriority="high"
-             className="hidden lg:block cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
+             className="hidden lg:hidden cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
            />
        </div>
          </div>

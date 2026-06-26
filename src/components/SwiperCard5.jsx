@@ -17,13 +17,13 @@ export const SwiperCard5 = () => {
               alt="Assaf Attacks product image"
               src={image4Src}
               fetchPriority="high"
-              className="block lg:hidden cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
+              className="block lg:block cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
             />
             <img
               alt="Assaf Attacks product image"
               src={image4mobSrc}
               fetchPriority="high"
-              className="hidden lg:block cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
+              className="hidden lg:hidden cursor-pointer object-cover bg-no-repeat absolute bottom-0 top-0 right-0 left-0 w-full h-full"
             />
           </div>
         </div>
