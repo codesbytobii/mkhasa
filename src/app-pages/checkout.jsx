@@ -642,24 +642,6 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
               />
             </label>
           </div>
-          <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'paystack' && "bg-gray-100"}`}>
-            <input
-              type="radio"
-              id="paystack"
-              name="paymentProvider"
-              value="paystack"
-              checked={provider === "paystack"}
-              onChange={handleProviderChange}
-            />
-            <label htmlFor="paystack" className="flex items-center gap-2">
-              <img
-                src={'/paystack-logo.png'}
-                className="w-28 h-18"
-                alt="paystack-logo"
-              />
-            </label>
-          </div>
-
           {/* Opay */}
           <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'paystack' && "bg-gray-100"}`}>
             <input
@@ -675,6 +657,23 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
                 src={'/opay-logo.png'}
                 className="w-28 h-18"
                 alt="opay-logo"
+              />
+            </label>
+          </div>
+          <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'paystack' && "bg-gray-100"}`}>
+            <input
+              type="radio"
+              id="paystack"
+              name="paymentProvider"
+              value="paystack"
+              checked={provider === "paystack"}
+              onChange={handleProviderChange}
+            />
+            <label htmlFor="paystack" className="flex items-center gap-2">
+              <img
+                src={'/paystack-logo.png'}
+                className="w-28 h-18"
+                alt="paystack-logo"
               />
             </label>
           </div>
