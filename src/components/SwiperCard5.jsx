@@ -1,5 +1,5 @@
 
-import image4 from "../assets/images/slide4desk.jpeg";
+import image4 from "../assets/images/slide4desk.png";
 import image4mob from "../assets/images/slide4mob.jpeg";
 import Link from "next/link";
 import { toProductPath } from "../utils/paths";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import image2 from "../assets/images/slide2desk.jpeg";
+import image2 from "../assets/images/slide2desk.png";
 import image2mob from "../assets/images/slide2mob.jpeg";
 import { toProductPath } from "../utils/paths";
 // import amberDesktop from "../assets/images/hero section desktop (5).jpg";

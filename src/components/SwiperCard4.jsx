@@ -1,5 +1,5 @@
 import { Button } from "./ui/Button";
-import image3 from "../assets/images/slide3desk.jpeg";
+import image3 from "../assets/images/slide3desk.png";
 import image3mob from "../assets/images/slide3mob.jpeg";
 // import bruleeDesktop from "../assets/images/hero section desktop (2).jpg";
 import Link from "next/link";

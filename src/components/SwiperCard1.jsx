@@ -1,5 +1,5 @@
 import Link from "next/link";
-import image1 from "../assets/images/slide1desk.jpeg";
+import image1 from "../assets/images/slide1desk.png";
 import image1mob from "../assets/images/slide1mob.jpeg";
 import { toProductPath } from "../utils/paths";
 

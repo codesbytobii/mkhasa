@@ -659,6 +659,25 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
               />
             </label>
           </div>
+
+          {/* Opay */}
+          <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'paystack' && "bg-gray-100"}`}>
+            <input
+              type="radio"
+              id="opay"
+              name="paymentProvider"
+              value="opay"
+              checked={provider === "opay"}
+              onChange={handleProviderChange}
+            />
+            <label htmlFor="opay" className="flex items-center gap-2">
+              <img
+                src={'/opay-logo.png'}
+                className="w-28 h-18"
+                alt="opay-logo"
+              />
+            </label>
+          </div>
           
         </div>
       </div>
