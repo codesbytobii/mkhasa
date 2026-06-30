@@ -142,7 +142,6 @@ const SingleBrandProduct = ({
         const fetchBrandDetails = async () => {
             try {
                 const response = await axios(`${baseUrl}/product/brand/${brandName}`);
-                console.log(response.data)
                 setBrandDetails(response.data);
             } catch (error) {
                 console.error("Error fetching brand details:", error);
@@ -163,7 +162,6 @@ const SingleBrandProduct = ({
     }
 
     console.log(`This is brand Details: ${brandDetails}`);
-    console.log(brandDetails);
 
     const description = brandDetails?.description || brandDetails?.brand?.description;
     const website = brandDetails?.websiteUrl || brandDetails?.brand?.websiteUrl;
