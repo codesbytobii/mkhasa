@@ -17,31 +17,9 @@ export const Component = () => {
   const searchParams = useSearchParams();
   const provider = searchParams.get("provider");
   const [verification, setVerification] = useState("pending");
-  const router = useRouter()
+  const router = useRouter();
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && verification === "successful") {
-      const transactionId = transaction_id || tx_ref || "";
-      const value =
-        Number(
-          JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1
-        ) || 1;
-      window.gtag && window.gtag('event', 'conversion', {
-        send_to: 'AW-17033587521/JtG-CP3hgOAaEMHWn7o_',
-      });
-      window.gtag && window.gtag('event', 'conversion', { send_to: 'AW-17261904158/o7h5COCn16obEJ6Cj6dA', value, 'currency': 'NGN', transaction_id: transactionId });
-
-      console.log("✅ Google Ads conversions sent:", {
-        value,
-        currency: "NGN",
-        transactionId,
-      });
-
-      // <script>  </script>
-    }
-  }, [verification]);
-
-  const status = searchParams.get("status");
+  // --- Parameter extraction per provider ---
 
   const tx_ref =
     provider === "paystack"
@@ -55,32 +33,88 @@ export const Component = () => {
       ? searchParams.get("reference")
       : provider === "flutterwave"
         ? searchParams.get("transaction_id")
-        : searchParams.get("paymentReference");
+        : provider === "opay"
+          ? null  // OPay doesn't use transaction_id
+          : searchParams.get("paymentReference"); // monnify
 
-    console.log(transaction_id)
-  // const transaction_id = provider === "paystack"? searchParams.get("transaction_id");
+  // OPay sends back ?provider=opay&reference=<orderCode>
+  const opayReference = provider === "opay" ? searchParams.get("reference") : null;
 
+  const status = searchParams.get("status");
+
+  console.log({ provider, transaction_id, opayReference, status });
+
+  // --- Google Ads conversion tracking ---
+  useEffect(() => {
+    if (typeof window !== "undefined" && verification === "successful") {
+      const transactionId = transaction_id || tx_ref || opayReference || "";
+      const value =
+        Number(
+          JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1
+        ) || 1;
+
+      window.gtag &&
+        window.gtag("event", "conversion", {
+          send_to: "AW-17033587521/JtG-CP3hgOAaEMHWn7o_",
+        });
+      window.gtag &&
+        window.gtag("event", "conversion", {
+          send_to: "AW-17261904158/o7h5COCn16obEJ6Cj6dA",
+          value,
+          currency: "NGN",
+          transaction_id: transactionId,
+        });
+
+      console.log("Google Ads conversions sent:", {
+        value,
+        currency: "NGN",
+        transactionId,
+      });
+    }
+  }, [verification]);
+
+  // --- Verification logic ---
   useEffect(() => {
     const MAX_RETRIES = 3;
 
     const attemptVerification = async (retryCount = 1) => {
       try {
         let res;
-        if(!provider){
+
+        if (provider === "opay") {
+          // OPay
+          if (!opayReference) {
+            console.error("OPay reference missing from callback URL");
+            setVerification("failed");
+            return;
+          }
+          res = await axios.post(`/verify/opay/payment/${opayReference}`);
+
+        } else if (!provider) {
+          // No provider = Monnify
           res = await axios.post(`/verify/monnify/payment/${transaction_id}`);
-        }else if (provider === "flutterwave" && status === "successful") {
+
+        } else if (provider === "flutterwave" && status === "successful") {
           res = await axios.post(`/verify/payment/${tx_ref}/${transaction_id}`);
+
         } else {
+          // Paystack
           res = await axios.post(`/verify/paystack/payment/${transaction_id}`);
         }
 
         if (res.status === 200 || res.data) {
           setVerification("successful");
-          toast.success("Payment Verified successfully!")
+          toast.success("Payment verified successfully!");
 
-          // Only run twq if Paystack was used
-          if (provider === "paystack" && typeof window !== "undefined" && window.twq) {
-            const itemsToBuy = JSON.parse(sessionStorage.getItem("items_to_buy"));
+          // Twitter/X pixel — Paystack only
+          if (
+            provider === "paystack" &&
+            typeof window !== "undefined" &&
+            window.twq
+          ) {
+            const itemsToBuy = JSON.parse(
+              sessionStorage.getItem("items_to_buy")
+            );
 
             const configuredContent = {
               content_type: "product",
@@ -101,15 +135,13 @@ export const Component = () => {
 
             window.twq("event", "tw-pioaa-pioad", configuredContent);
           }
-
         } else {
           throw new Error("Verification unsuccessful");
         }
-
       } catch (error) {
         if (retryCount < MAX_RETRIES) {
-          console.log("retrying...")
-          // setTimeout(() => attemptVerification(retryCount + 1), 1500); // Wait 1.5 seconds then retry
+          console.log("Retrying verification...");
+          // setTimeout(() => attemptVerification(retryCount + 1), 1500);
         } else {
           setVerification("failed");
         }
@@ -118,40 +150,46 @@ export const Component = () => {
 
     attemptVerification();
   }, []);
-  // console.log((!status || !provider))
 
-  if (!status || !provider) {
-    router.push("/")
-  }
+  // --- Guard: redirect home if no meaningful params ---
+  // OPay doesn't send `status`, so we only redirect if there's truly nothing
+  useEffect(() => {
+    const isOpay = provider === "opay" && opayReference;
+    const isMonnify = !provider && transaction_id;
+    const isFlutterwave = provider === "flutterwave" && status && tx_ref;
+    const isPaystack = provider === "paystack" && transaction_id;
 
+    if (!isOpay && !isMonnify && !isFlutterwave && !isPaystack) {
+      router.push("/");
+    }
+  }, []);
 
   return (
     <>
-      
-      <Wrapper className="py-8 ">
+      <Wrapper className="py-8">
         {verification === "pending" ? (
-          <>Your Payment is being Processed ...</>
+          <>Your payment is being processed...</>
         ) : verification === "successful" ? (
           <Success>
             <h2 className="mt-6 text-xl font-bold">Success</h2>
             <p className="mx-auto max-w-lg text-center">
-              You have successfully placed your order, you can track your order
-              status
+              You have successfully placed your order. You can track your order
+              status{" "}
               <Link href="/account/order-history" className="text-app-red px-2">
                 here
               </Link>
-              , below are related products that go with what you just purchased.
+              . Below are related products that go with what you just purchased.
             </p>
           </Success>
         ) : verification === "failed" ? (
           <Error>
             <h2 className="mt-6 text-xl font-bold">Failed</h2>
-            <p className="mx-auto max-w-lg text-center ">
+            <p className="mx-auto max-w-lg text-center">
               Sorry, your transaction failed. Please check that you have not
-              been debited and contact your bank. Click
+              been debited and contact your bank. Click{" "}
               <Link href="/" className="text-app-red px-2">
                 here
-              </Link>
+              </Link>{" "}
               to return to home.
             </p>
           </Error>

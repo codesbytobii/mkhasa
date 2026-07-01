@@ -161,8 +161,6 @@ const SingleBrandProduct = ({
         return <LoadingSpinner />;
     }
 
-    console.log(`This is brand Details: ${brandDetails}`);
-
     const description = brandDetails?.description || brandDetails?.brand?.description;
     const website = brandDetails?.websiteUrl || brandDetails?.brand?.websiteUrl;
     const hasDescription = description && description.trim() !== "" && description !== "<p><br></p>";

@@ -636,14 +636,14 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
             />
             <label htmlFor="monnify" className="flex items-center gap-2">
               <img
-                src={'/monnify-logo.png'}
+                src={'/monnify-logo.jpeg'}
                 className="w-18 h-10"
                 alt="monnify-logo"
               />
             </label>
           </div>
           {/* Opay */}
-          <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'paystack' && "bg-gray-100"}`}>
+          <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'opay' && "bg-gray-100"}`}>
             <input
               type="radio"
               id="opay"
