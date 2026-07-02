@@ -42,17 +42,10 @@ export const Component = () => {
 
   const status = searchParams.get("status");
 
-  console.log({ provider, transaction_id, opayReference, status });
-  console.log('I am Live');
-
   // --- Google Ads conversion tracking ---
   useEffect(() => {
     if (typeof window !== "undefined" && verification === "successful") {
       const transactionId = transaction_id || tx_ref || opayReference || "";
-      // const value =
-      //   Number(
-      //     JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1
-      //   ) || 1;
       const value = (() => {
         try {
           return Number(JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1) || 1;
@@ -123,9 +116,6 @@ export const Component = () => {
             typeof window !== "undefined" &&
             window.twq
           ) {
-            // const itemsToBuy = JSON.parse(
-            //   sessionStorage.getItem("items_to_buy")
-            // );
             const itemsToBuy = (() => {
               try {
                 return JSON.parse(sessionStorage.getItem("items_to_buy"));
