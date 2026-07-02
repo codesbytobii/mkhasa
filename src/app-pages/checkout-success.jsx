@@ -48,10 +48,17 @@ export const Component = () => {
   useEffect(() => {
     if (typeof window !== "undefined" && verification === "successful") {
       const transactionId = transaction_id || tx_ref || opayReference || "";
-      const value =
-        Number(
-          JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1
-        ) || 1;
+      // const value =
+      //   Number(
+      //     JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1
+      //   ) || 1;
+      const value = (() => {
+        try {
+          return Number(JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1) || 1;
+        } catch {
+          return 1;
+        }
+      })();
 
       window.gtag &&
         window.gtag("event", "conversion", {
@@ -106,15 +113,27 @@ export const Component = () => {
           setVerification("successful");
           toast.success("Payment verified successfully!");
 
+          console.log(itemsToBuy);
+          console.log(itemsToBuy?.items);
+
           // Twitter/X pixel — Paystack only
           if (
             provider === "paystack" &&
             typeof window !== "undefined" &&
             window.twq
           ) {
-            const itemsToBuy = JSON.parse(
-              sessionStorage.getItem("items_to_buy")
-            );
+            // const itemsToBuy = JSON.parse(
+            //   sessionStorage.getItem("items_to_buy")
+            // );
+            const itemsToBuy = (() => {
+              try {
+                return JSON.parse(sessionStorage.getItem("items_to_buy"));
+              } catch {
+                return null;
+              }
+            })();
+
+            if (!itemsToBuy) return;
 
             const configuredContent = {
               content_type: "product",
@@ -149,20 +168,19 @@ export const Component = () => {
     };
 
     attemptVerification();
-  }, []);
+  }, [provider, transaction_id, tx_ref, status, opayReference]);
 
-  // --- Guard: redirect home if no meaningful params ---
-  // OPay doesn't send `status`, so we only redirect if there's truly nothing
   useEffect(() => {
-    const isOpay = provider === "opay" && opayReference;
-    const isMonnify = !provider && transaction_id;
-    const isFlutterwave = provider === "flutterwave" && status && tx_ref;
-    const isPaystack = provider === "paystack" && transaction_id;
+    const isOkay =
+    (provider === "opay" && opayReference) ||  // OPay
+    (!provider && transaction_id) ||            // Monnify
+    (provider === "flutterwave" && status && tx_ref) || // Flutterwave
+    (provider === "paystack" && transaction_id); // Paystack
 
-    if (!isOpay && !isMonnify && !isFlutterwave && !isPaystack) {
-      router.push("/");
+    if (!isOkay) {
+        router.push("/");
     }
-  }, []);
+  }, [provider, transaction_id, tx_ref, status, opayReference, router]);
 
   return (
     <>

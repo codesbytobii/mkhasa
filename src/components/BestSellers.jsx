@@ -10,7 +10,8 @@ import { Icon } from "@iconify/react";
 import { useRef, useEffect } from "react";
 
 export const BestSellers = ({ horizontalOnSmallScreens = true }) => {
-  const { bestsellers } = useLoaderData();
+  //const { bestsellers } = useLoaderData();
+  const { bestsellers = [] } = useLoaderData() || {};
   const ref = useRef();
 
   const { getHandlers, setElement } = useLongPress(ref.current);
