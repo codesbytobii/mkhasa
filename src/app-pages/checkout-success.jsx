@@ -43,6 +43,7 @@ export const Component = () => {
   const status = searchParams.get("status");
 
   console.log({ provider, transaction_id, opayReference, status });
+  console.log('I am Live');
 
   // --- Google Ads conversion tracking ---
   useEffect(() => {
