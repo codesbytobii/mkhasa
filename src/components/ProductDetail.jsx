@@ -67,7 +67,6 @@ export const ProductDetail = ({ productId, product }) => {
   const [tab, setTab] = useState(searchParams.get("tab") || "description");
   const onTabClick = (tab) => {
     if (!tab) return;
-    // tab state managed locally
     setTab(tab);
   };
 
@@ -84,8 +83,7 @@ export const ProductDetail = ({ productId, product }) => {
           resetForm();
           setRating(0);
         },
-        onError: () => {
-        },
+        onError: () => {},
       }
     );
   }
@@ -107,7 +105,6 @@ export const ProductDetail = ({ productId, product }) => {
     <div className="bg-white px-6 py-4 mb-6 mt-2">
       <CategoryPanel />
       <div className="my-8 md:hidden">
-
         <div className="flex border-y py-4 items-center gap-4 text-[#0F0C0C] text-[1rem]">
           <img src="/icons/return.png" width={52} height={52} alt={"Return icon"} />
           <div>
@@ -132,24 +129,25 @@ export const ProductDetail = ({ productId, product }) => {
         <div className="flex border-y py-4 items-center gap-4 text-[#0F0C0C] text-[1rem]">
           <img src="/icons/customer.png" width={40} height={40} alt="Customer Icon" className="ml-2" />
           <div>
-            <p className="font-medium text-[17px]">Customer support and fragrance consultant <a href="#footer" className="text-blue-500 text-sm">see details</a></p>
+            <p className="font-medium text-[17px]">
+              Customer support and fragrance consultant{" "}
+              <a href="#footer" className="text-blue-500 text-sm">see details</a>
+            </p>
           </div>
         </div>
-
-      </div >
-   
+      </div>
 
       {/* Tab switch for mobile and tablet */}
       <div className="md:hidden">
         <div className="border-b-2 flex">
           <button
-            className={`py-2 ${tab == "description" && "font-bold bg-[#C8FFE2]"}  w-full`}
+            className={`py-2 ${tab == "description" && "font-bold bg-[#C8FFE2]"} w-full`}
             onClick={() => onTabClick("description")}
           >
             Description
           </button>
           <button
-            className={`py-2 ${tab == "reviews" && "font-bold bg-[#C8FFE2]"}  w-full`}
+            className={`py-2 ${tab == "reviews" && "font-bold bg-[#C8FFE2]"} w-full`}
             onClick={() => onTabClick("reviews")}
           >
             Reviews
@@ -159,21 +157,19 @@ export const ProductDetail = ({ productId, product }) => {
 
       {/* Content for mobile and tablet */}
       <div className="md:hidden">
-        {
-          tab == "description" ? (
-            <DescriptionContent product={product} />
-          ) : (
-            <ReviewsContent
-              reviews={reviews}
-              rating={rating}
-              setRating={setRating}
-              formik={formik}
-              canSubmit={canSubmit}
-              getUserId={getUserId}
-              handleSubmitReview={handleSubmitReview}
-            />
-          )
-        }
+        {tab == "description" ? (
+          <DescriptionContent product={product} />
+        ) : (
+          <ReviewsContent
+            reviews={reviews}
+            rating={rating}
+            setRating={setRating}
+            formik={formik}
+            canSubmit={canSubmit}
+            getUserId={getUserId}
+            handleSubmitReview={handleSubmitReview}
+          />
+        )}
       </div>
 
       {/* Content for laptop and desktop */}
@@ -193,21 +189,35 @@ export const ProductDetail = ({ productId, product }) => {
   );
 };
 
+// Helper: strips HTML tags for contexts that need plain text
+const stripHtml = (html) => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
+};
+
+// Helper: check if description is non-empty HTML (not just Quill's empty state)
+const hasContent = (html) => {
+  if (!html) return false;
+  const stripped = stripHtml(html);
+  return stripped.length > 0;
+};
+
 export const DescriptionContent = ({ product, accordion }) => {
   return (
     <div className="mt-5">
-      {/* Heading for mobile */}
-      {/* <h2 className="text-2xl md:hidden font-bold mb-2">Description</h2> */}
-      {/* Heading for tab and laptop */}
-      <div className={`relative hidden ${!accordion && "md:inline-block"}  border w-full bg-[#C8FFE2] p-2`}>
-        <h2 className="text-2xl font-bold ">Description</h2>
+      <div className={`relative hidden ${!accordion && "md:inline-block"} border w-full bg-[#C8FFE2] p-2`}>
+        <h2 className="text-2xl font-bold">Description</h2>
       </div>
-      <hr className="h-px mb-5 bg-gray-200  hidden md:block border-0 dark:bg-gray-700" />
+      <hr className="h-px mb-5 bg-gray-200 hidden md:block border-0 dark:bg-gray-700" />
 
       <Wrapper>
-        <div className="border-b md:border-none ">
-          {product?.description && (
-            <p className="py-1">{product.description}</p>
+        <div className="border-b md:border-none">
+          {/* Render formatted HTML description — falls back gracefully if plain text */}
+          {hasContent(product?.description) && (
+            <div
+              className="py-1 prose prose-sm max-w-none text-gray-800"
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
           )}
           {product?.appeal && (
             <p className="py-1 capitalize">
@@ -230,11 +240,11 @@ export const DescriptionContent = ({ product, accordion }) => {
           {(product?.topNotes ||
             product?.topNotes === null ||
             product?.topNotes === "undefined") && (
-              <p className="py-1">
-                <span className="font-bold capitalize">Top Notes:</span>{" "}
-                {product.topNotes}
-              </p>
-            )}
+            <p className="py-1">
+              <span className="font-bold capitalize">Top Notes:</span>{" "}
+              {product.topNotes}
+            </p>
+          )}
           {product?.middleNotes && (
             <p className="py-1">
               <span className="font-bold capitalize">Middle Notes:</span>{" "}
@@ -249,17 +259,16 @@ export const DescriptionContent = ({ product, accordion }) => {
           )}
         </div>
       </Wrapper>
-    </div >
+    </div>
   );
 };
-// SHIPPING CHARGES
+
 export const ShippingChargesContent = () => {
   return (
     <div className="mt-5">
-      <hr className="h-px mb-5 bg-gray-200  hidden md:block border-0 dark:bg-gray-700" />
-
+      <hr className="h-px mb-5 bg-gray-200 hidden md:block border-0 dark:bg-gray-700" />
       <Wrapper>
-        <div >
+        <div>
           <p className="py-1 capitalize">
             <span className="font-bold">Delivery Cost:</span> ₦2,500.00 across Nigeria
           </p>
@@ -269,20 +278,19 @@ export const ShippingChargesContent = () => {
             <p> - 5 days max outside Lagos</p>
             <p> - Orders placed after 4 pm will begin processing the next business day.</p>
           </p>
-          <p>Customers may occasionally be required to pick up their package from a designated office address..</p>
+          <p>Customers may occasionally be required to pick up their package from a designated office address.</p>
         </div>
-
       </Wrapper>
     </div>
   );
 };
+
 export const ShippingPolicyContent = () => {
   return (
     <div className="mt-5">
-      <hr className="h-px mb-5 bg-gray-200  hidden md:block border-0 dark:bg-gray-700" />
-
+      <hr className="h-px mb-5 bg-gray-200 hidden md:block border-0 dark:bg-gray-700" />
       <Wrapper>
-        <div className="border-none space-y-4 ">
+        <div className="border-none space-y-4">
           <div className="space-y-2">
             <p className="py-1 capitalize">
               <span className="font-bold block">General Information</span>
@@ -298,7 +306,6 @@ export const ShippingPolicyContent = () => {
             <p> - All deliveries must be signed for. If you are unavailable, kindly inform us of an alternative recipient, such as a colleague or neighbor.</p>
             <p> - Sundays and public holidays are excluded from delivery schedules and may affect delivery times.</p>
           </div>
-
           <div className="space-y-2">
             <p className="py-1 capitalize">
               <span className="font-bold block">Important Information:</span>
@@ -308,10 +315,10 @@ export const ShippingPolicyContent = () => {
             <p> - All claims for shortages or damages must be reported to customer service on the day of delivery.</p>
             <p> - We are unable to redirect orders once items have been shipped.</p>
           </div>
-
         </div>
-        <p className="mt-8">If you have any further queries regarding Mkhasa delivery, please contact our Support Team at customercare@mkhasa.com from Monday to Saturday, 8.00 am - 6.00 pm.</p>
-
+        <p className="mt-8">
+          If you have any further queries regarding Mkhasa delivery, please contact our Support Team at customercare@mkhasa.com from Monday to Saturday, 8.00 am - 6.00 pm.
+        </p>
       </Wrapper>
     </div>
   );
@@ -320,10 +327,9 @@ export const ShippingPolicyContent = () => {
 export const ReturnRefundContent = () => {
   return (
     <div className="mt-5">
-      <hr className="h-px mb-5 bg-gray-200  hidden md:block border-0 dark:bg-gray-700" />
-
+      <hr className="h-px mb-5 bg-gray-200 hidden md:block border-0 dark:bg-gray-700" />
       <Wrapper>
-        <div className="border-none space-y-4 ">
+        <div className="border-none space-y-4">
           <div className="space-y-2">
             <p className="py-1 capitalize">
               <span className="font-bold block">Return & Refund</span>
@@ -339,7 +345,7 @@ export const ReturnRefundContent = () => {
               <span className="font-bold block">How To Initiate A Return</span>
             </p>
             <div>
-              <span className="font-semibold"> - Start you return online: </span>
+              <span className="font-semibold"> - Start your return online: </span>
               <span>Reach out via WhatsApp, SMS, or Instagram (IG) to initiate a return.</span>
             </div>
             <div>
@@ -352,9 +358,8 @@ export const ReturnRefundContent = () => {
             </div>
             <div>
               <span className="font-semibold"> - Drop off your package: </span>
-              <span>Items are sent via the customer’s preferred freight company to a location given by the customer care representative.</span>
+              <span>Items are sent via the customer's preferred freight company to a location given by the customer care representative.</span>
             </div>
-
           </div>
           <div className="space-y-2">
             <p className="py-1 capitalize">
@@ -364,7 +369,6 @@ export const ReturnRefundContent = () => {
               <span> - You can track your return via your freight agent, and you will be notified upon pickup</span>
             </div>
           </div>
-
           <div className="space-y-2">
             <p className="py-1 capitalize">
               <span className="font-bold block">When You'll Receive Your Refund</span>
@@ -377,7 +381,6 @@ export const ReturnRefundContent = () => {
             </div>
           </div>
         </div>
-
       </Wrapper>
     </div>
   );
@@ -393,13 +396,10 @@ const ReviewsContent = ({
   handleSubmitReview,
 }) => {
   const user = getStoredUser();
-  // console.log(reviews)
   return (
     <div className="mt-8">
-      {/* Heading for mobile */}
-      <h2 className="text-2xl md:hidden font-bold mb-4 ">Reviews</h2>
-      {/* Heading for tab and laptop */}
-      <div className="relative hidden md:inline-block  w-full bg-[#C8FFE2] p-2">
+      <h2 className="text-2xl md:hidden font-bold mb-4">Reviews</h2>
+      <div className="relative hidden md:inline-block w-full bg-[#C8FFE2] p-2">
         <h2 className="text-2xl font-bold mb-4">Reviews</h2>
         <div className="absolute left-1/2 transform -translate-x-1/2 bottom-0 h-0.5 w-full bg-black"></div>
       </div>
@@ -423,10 +423,7 @@ const ReviewsContent = ({
               <Tooltip>
                 <TooltipTrigger>
                   <p>Your Rating</p>
-                  <Rating
-                    rating={rating}
-                    onClick={(newRating) => setRating(newRating)}
-                  />
+                  <Rating rating={rating} onClick={(newRating) => setRating(newRating)} />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Select your rating for this product</p>
@@ -458,10 +455,9 @@ const ReviewsContent = ({
                   {...formik.getFieldProps("review")}
                 ></textarea>
                 {formik.errors["review"] && (
-                  <p className="text-app-red"> {formik.errors["review"]}</p>
+                  <p className="text-app-red">{formik.errors["review"]}</p>
                 )}
               </div>
-
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger className="w-full">
@@ -499,7 +495,7 @@ const Review = ({ review, reviewer, rating }) => {
   );
 };
 
-const Rating = ({ rating = 0, onClick = () => { } }) => {
+const Rating = ({ rating = 0, onClick = () => {} }) => {
   let stars = [];
   for (let i = 0; i < rating; i++) {
     stars.push("iconamoon:star-fill");

@@ -9,9 +9,14 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL ||
   "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
 
+// Strips HTML tags for use in plain-text contexts (JSON-LD, meta description fallback)
+const stripHtml = (html) => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
+};
+
 async function getProductSections(product) {
   const results = await Promise.allSettled([
-    // Series products: the small variant/colour carousel
     product?.series
       ? fetch(`${BASE_URL}/product/series/${encodeURIComponent(product.series)}`, {
           next: { revalidate: 3600 },
@@ -20,7 +25,6 @@ async function getProductSections(product) {
           .then((d) => d?.products ?? [])
       : Promise.resolve([]),
 
-    // Explore brands: other products from the same brand
     product?.brand
       ? fetch(
           `${BASE_URL}/product/brand/${encodeURIComponent(product.brand)}?page=1&pageSize=10`,
@@ -32,10 +36,8 @@ async function getProductSections(product) {
   ]);
 
   return {
-    // Feeds the series carousel (small round thumbnails)
     initialSeriesProducts:
       results[0].status === "fulfilled" ? results[0].value : [],
-    // Feeds the Explore Brands row
     initialExploreBrands:
       results[1].status === "fulfilled" ? results[1].value : [],
   };
@@ -65,9 +67,19 @@ export async function generateMetadata({ params }) {
     : "";
   const canonicalPath = toProductPath(productName);
 
+  // Use admin-set metaTitle if available, else fall back to generated title
+  const metaTitle = product?.metaTitle
+    ? `${product.metaTitle} | Mkhasa`
+    : `${productName} | Mkhasa Fragrance Store`;
+
+  // Use admin-set metaDescription if available, else fall back to generated description
+  const metaDescription = product?.metaDescription
+    ? product.metaDescription
+    : `Buy ${productName} online at Mkhasa.${productPrice} 100% authentic perfume with fast delivery nationwide in Nigeria.`;
+
   return createPageMetadata({
-    title: `${productName} | Mkhasa Fragrance Store`,
-    description: `Buy ${productName} online at Mkhasa.${productPrice} 100% authentic perfume with fast delivery nationwide in Nigeria.`,
+    title: metaTitle,
+    description: metaDescription,
     path: canonicalPath,
     image: product?.mainImage || "/logo.webp",
     keywords: [productName, `${productName} perfume`, "buy perfume online nigeria"],
@@ -92,7 +104,6 @@ export default async function ProductPage({ params }) {
 
   const canonicalPath = toProductPath(canonicalSlug || raw);
 
-  // Fetch series carousel + brand row on the server
   const { initialSeriesProducts, initialExploreBrands } =
     await getProductSections(initialProduct);
 
@@ -106,10 +117,11 @@ export default async function ProductPage({ params }) {
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
+    // JSON-LD name always uses the real product name (not h1Title) for schema accuracy
     name: initialProduct?.name || formatSlugForTitle(raw),
     image: images,
-    description:
-      initialProduct?.description ||
+    // Strip HTML from description so JSON-LD gets plain text, not markup
+    description: stripHtml(initialProduct?.description) ||
       `Buy ${initialProduct?.name || formatSlugForTitle(raw)} online at Mkhasa.`,
     sku: initialProduct?.barcode || initialProduct?._id,
     brand: {
@@ -131,9 +143,9 @@ export default async function ProductPage({ params }) {
 
   return (
     <>
-      {/* Primary heading for crawlers — visually hidden */}
+      {/* sr-only h1 uses h1Title if set, falls back to product name */}
       <h1 className="sr-only">
-        {initialProduct?.name || formatSlugForTitle(raw) || "Product details"}
+        {initialProduct?.h1Title || initialProduct?.name || formatSlugForTitle(raw) || "Product details"}
       </h1>
       <script
         type="application/ld+json"

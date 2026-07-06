@@ -47,8 +47,8 @@ const BASE_URL =
 
 export const Component = ({
   initialProduct: serverProduct,
-  initialSeriesProducts, // server-fetched series carousel items
-  initialExploreBrands,  // server-fetched brand row items
+  initialSeriesProducts,
+  initialExploreBrands,
 }) => {
   const [product, setProduct] = useState(serverProduct || null);
   const { decreaseItem, increaseItem, addToCart, getCartFromLocalStorage } = useCartContext();
@@ -64,14 +64,10 @@ export const Component = ({
   const [selectedDiscount, setSelectedDiscount] = useState();
   const [selectedQuantity, setSelectedQuantity] = useState();
 
-  // Seeded from server — crawlers see these immediately in the HTML.
-  // Client-side useEffects below will refresh them after hydration.
   const [seriesProducts, setSeriesProducts] = useState(initialSeriesProducts || []);
   const [exploreBrands, setExploreBrands] = useState(initialExploreBrands || []);
 
   const { toggleNotificationDialog } = useNotificationDialogContext();
-
-  // Saves current product to localStorage; returns list excluding this product
   const recentlyViewed = useRecentlyViewed(product);
 
   const disVar = [
@@ -86,7 +82,6 @@ export const Component = ({
     return price * (1 - discountPercentage / 100);
   };
 
-  // Fetch product if not provided by server or if URL slug changed
   useEffect(() => {
     if (!productName) return;
     if (product && toProductSlug(product.name) === productName) {
@@ -108,7 +103,6 @@ export const Component = ({
     fetchProduct();
   }, [productName]);
 
-  // Refreshes series carousel on the client after hydration
   const fetchSeriesProducts = useCallback(async () => {
     if (!product?.series) return;
     setCount(1);
@@ -120,7 +114,6 @@ export const Component = ({
     }
   }, [product?.series]);
 
-  // Refreshes brand row on the client after hydration
   const fetchExploreBrands = useCallback(async () => {
     if (!product?.brand) return;
     try {
@@ -131,17 +124,9 @@ export const Component = ({
     }
   }, [product?.brand]);
 
-  useEffect(() => {
-    fetchExploreBrands();
-  }, [fetchExploreBrands]);
-
-  useEffect(() => {
-    if (product?.series) fetchSeriesProducts();
-  }, [fetchSeriesProducts, product?.series]);
-
-  useEffect(() => {
-    setElement(ref.current);
-  }, [setElement]);
+  useEffect(() => { fetchExploreBrands(); }, [fetchExploreBrands]);
+  useEffect(() => { if (product?.series) fetchSeriesProducts(); }, [fetchSeriesProducts, product?.series]);
+  useEffect(() => { setElement(ref.current); }, [setElement]);
 
   const selectDiscount = (text) => setSelectedDiscount(text);
 
@@ -269,13 +254,6 @@ export const Component = ({
 
   return (
     <>
-      {/*
-        noscript removed: the component now SSRs so this was producing a
-        duplicate h1 alongside the sr-only one in page.jsx.
-        Crawler-visible links (category, similar products) are rendered
-        in the main SSR output below.
-      */}
-
       <Wrapper className="bg-white w-full js-enabled">
         <Link href={toCategoryPath(product?.category ?? "perfume")} className="flex items-center gap-1 text-sm text-[#555] mt-4">
           <MoveLeft className="w-4 h-4" />
@@ -302,7 +280,6 @@ export const Component = ({
                 <Share2 className="absolute z-20 right-2 top-2 mt-2 mr-2 cursor-pointer w-fit ml-auto" />
               )}
 
-              {/* Carousel */}
               <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
                   {images.map((img, index) => (
@@ -319,7 +296,6 @@ export const Component = ({
                 </div>
               </div>
 
-              {/* Indicator Dots */}
               <div className="flex justify-center gap-2 pt-4 mb-4">
                 {images.map((_, index) => (
                   <div
@@ -330,7 +306,6 @@ export const Component = ({
                 ))}
               </div>
 
-              {/* Series Products - Mobile */}
               {seriesProducts?.length > 0 && (
                 <Carousel className="mt-8 m-auto w-[70vw]">
                   <CarouselContent className="gap-4">
@@ -350,7 +325,6 @@ export const Component = ({
                 </Carousel>
               )}
 
-              {/* Discount Section */}
               {product?.discount && (
                 <div className="mt-4">
                   {!showDiscount ? (
@@ -460,7 +434,10 @@ export const Component = ({
             {/* Product Details - Right */}
             <div>
               <div className="md:mt-6 py-3">
-                <h3 className="md:text-4xl text-2xl font-medium text-[#020817]">{product?.name}</h3>
+                {/* h1Title takes priority; falls back to name for products without it */}
+                <h3 className="md:text-4xl text-2xl font-medium text-[#020817]">
+                  {product?.h1Title || product?.name}
+                </h3>
               </div>
               {product?.barcode && (
                 <li className="mt-2 text-[#3E3C3C] font-inter font-medium text-sm">
@@ -562,7 +539,6 @@ export const Component = ({
           </div>
         </div>
 
-        {/* Series Products - Desktop */}
         {seriesProducts?.length > 0 && (
           <Carousel className="mt-8">
             <CarouselContent className="gap-4">
@@ -581,7 +557,6 @@ export const Component = ({
       <div>
         <ProductDetail productId={product?._id} product={product} />
         <Wrapper>
-          {/* Dupes — rendered from product.similar which is in initialProduct (SSR) */}
           {Array.isArray(product?.similar) && product.similar.length > 0 && (
             <div className="mb-4">
               <div className="flex justify-between gap-2 mt-8 overflow-hidden">
@@ -607,7 +582,6 @@ export const Component = ({
             </div>
           )}
 
-          {/* Explore Brands — seeded from initialExploreBrands (SSR) */}
           {Array.isArray(exploreBrands) && exploreBrands.length > 0 && (
             <div className="mb-4">
               <div className="flex justify-between gap-2 mt-8 overflow-hidden">
@@ -633,7 +607,6 @@ export const Component = ({
             </div>
           )}
 
-          {/* Recently Viewed — client-only (localStorage), intentionally not SSR'd */}
           {Array.isArray(recentlyViewed) && recentlyViewed.length > 0 && (
             <div className="mb-4">
               <div className="flex justify-between gap-2 mt-8 overflow-hidden">
@@ -659,7 +632,6 @@ export const Component = ({
             </div>
           )}
 
-          {/* FBT */}
           {product?.FBT?.length > 0 && (
             <div className="mt-16 hidden md:w-[60%] max-w-[600px] md:text-center mx-auto my-8">
               <Heading className="mt-3 mb-8 font-bold text-app-black">Frequently Bought Together</Heading>
