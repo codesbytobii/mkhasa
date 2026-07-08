@@ -642,7 +642,7 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
               />
             </label>
           </div>
-          {/* Opay */}
+          {/* Opayy */}
           <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'opay' && "bg-gray-100"}`}>
             <input
               type="radio"
