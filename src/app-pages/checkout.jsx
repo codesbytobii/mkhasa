@@ -69,6 +69,8 @@ export const states = [
   { name: "Zamfara", value: "zamfara" },
 ];
 
+const BASE_URL_V2 = 'https://mkhasa-bfdb6fabd978.herokuapp.com/api/v2';
+
 export const Component = () => {
   const schema = yup.object().shape({
     email: yup.string().email().required(),
@@ -122,7 +124,11 @@ export const Component = () => {
   const mutation = useMutation({
     mutationFn: (payload) => {
       sessionStorage.getItem("items_to_buy", JSON.stringify(data))
-      return axios.post(`create/order/${getUserId()}`, {
+      // return axios.post(`create/order/${getUserId()}`, {
+      //   provider,
+      //   ...payload,
+      // });
+      return axios.post(`${BASE_URL_V2}/orders/create/${getUserId()}`, {
         provider,
         ...payload,
       });
@@ -643,7 +649,7 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
             </label>
           </div>
           {/* Opayy */}
-          {/* <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'opay' && "bg-gray-100"}`}>
+          <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'opay' && "bg-gray-100"}`}>
             <input
               type="radio"
               id="opay"
@@ -659,7 +665,7 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
                 alt="opay-logo"
               />
             </label>
-          </div> */}
+          </div>
           <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'paystack' && "bg-gray-100"}`}>
             <input
               type="radio"
