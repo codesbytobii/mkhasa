@@ -36,7 +36,7 @@ export const OrderTotal = ({ partial }) => {
   return (
     <div className="py-4 md:flex md:justify-between">
       <div className="md:mr-5">
-        <CouponCode />
+        {/* <CouponCode /> */}
       </div>
       <div className="border-2 border-gray-300 pt-2 lg:pt-6 pb-5 lg:pb-12 px-5 lg:px-10 w-full lg:w-[40%] mt-5 md:mt-0 flex flex-col gap-10">
         <OrderSummary partial={partial} />
