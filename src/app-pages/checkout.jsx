@@ -81,8 +81,10 @@ export const Component = () => {
     name: yup.string().required(),
     street1: yup.string().required(),
   });
-  const { data } = useCartQuery();
+  // const { data } = useCartQuery();
+  const { data, refetch } = useCartQuery();
 
+  const [couponCode, setCouponCode] = useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -98,7 +100,8 @@ export const Component = () => {
     onSubmit: async (values) => {
       // Concatenate street and city to create address
       const address = `${values.street1}, ${values.city}`;
-      const payload = { ...values, address };
+      // const payload = { ...values, address};
+      const payload = { ...values, address, ...(couponCode && { couponCode }) };
       delete payload.street1; // Remove street1 from the payload
       mutation.mutate(payload);
     },
@@ -207,6 +210,8 @@ export const Component = () => {
               isPending={mutation.isPending}
               deliveryState={formik.values.state}
               payStackSelected={provider == "paystack" ? true : false}
+              refetchCart={refetch}
+              onCouponVerified={setCouponCode}
             />
           </div>
         </div>
@@ -215,15 +220,14 @@ export const Component = () => {
   );
 };
 
-
-
-const CartSummary = ({ className, isPending, deliveryState, payStackSelected, data }) => {
+const CartSummary = ({ className, isPending, deliveryState, payStackSelected, data, refetchCart, onCouponVerified }) => {
   const { user } = useAuth();
   const { getCartFromLocalStorage, cartQuantityChanged } = useCartContext();
   const [coupon, setCoupon] = useState();
   const [submitting, setSubmitting] = useState(false);
+  const [couponMessage, setCouponMessage] = useState(null);
+  const [discountPercent, setDiscountPercent] = useState(0);
   const [guestCart, setGuestCart] = useState([]);
-  const router = useRouter();
 
   useEffect(() => {
     if (!user) {
@@ -232,13 +236,26 @@ const CartSummary = ({ className, isPending, deliveryState, payStackSelected, da
   }, [cartQuantityChanged, user]);
 
   const submitCoupon = async () => {
+    if (!coupon) return;
     setSubmitting(true);
+    setCouponMessage(null);
     try {
       const res = await axios.post("/coupon", { couponCode: coupon });
-      console.log(res.data);
-      router.push("/fake-success");
+      if (res.data?.success) {
+        setCouponMessage({ type: "success", text: res.data.message });
+        setDiscountPercent(res.data.discount ?? 0);
+        onCouponVerified?.(coupon);
+        await refetchCart();
+      } else {
+        setCouponMessage({ type: "error", text: res.data?.message || "Invalid coupon" });
+        setDiscountPercent(0);
+      }
     } catch (error) {
-      console.log(error);
+      setCouponMessage({
+        type: "error",
+        text: error.response?.data?.message || "Failed to apply coupon",
+      });
+      setDiscountPercent(0);
     } finally {
       setSubmitting(false);
     }
@@ -252,12 +269,10 @@ const CartSummary = ({ className, isPending, deliveryState, payStackSelected, da
         <Heading className="text-app-black">Item(s)</Heading>
       </div>
       <div>
-        {user ? (
-          <CartItems isCheckout />
-        ) : (
-          <GuestCartItems isCheckout />
-        )}
-        <OrderSummary state={deliveryState} payStackSelected={payStackSelected} />
+        {user ? <CartItems isCheckout /> : <GuestCartItems isCheckout />}
+
+        <OrderSummary state={deliveryState} payStackSelected={payStackSelected} discountPercent={discountPercent} />
+
         <form
           onSubmit={(e) => { e.preventDefault(); submitCoupon(); }}
           className="flex justify-between items-end gap-6 my-4"
@@ -271,8 +286,20 @@ const CartSummary = ({ className, isPending, deliveryState, payStackSelected, da
               className="border-black border p-2"
             />
           </div>
-          <Button className="btn">Apply</Button>
+          <Button className="btn" disabled={submitting}>
+            {submitting ? (
+              <Icon icon="svg-spinners:6-dots-rotate" style={{ fontSize: 16 }} />
+            ) : (
+              "Apply"
+            )}
+          </Button>
         </form>
+
+        {couponMessage && (
+          <p className={couponMessage.type === "success" ? "text-green-600" : "text-app-red"}>
+            {couponMessage.text}
+          </p>
+        )}
 
         {hasItems && (
           <Button
