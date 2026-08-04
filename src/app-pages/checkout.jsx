@@ -658,7 +658,7 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
               />
             </label>
           </div>
-          <div className={`flex items-center gap-2 p-2 rounded-lg ${provider === 'monnify' && 'bg-gray-100'}`}>
+          {/* <div className={`flex items-center gap-2 p-2 rounded-lg ${provider === 'monnify' && 'bg-gray-100'}`}>
             <input
               type="radio"
               id="monnify"
@@ -674,7 +674,7 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
                 alt="monnify-logo"
               />
             </label>
-          </div>
+          </div> */}
           {/* Opayy */}
           <div className={`flex items-center p-2 rounded-lg gap-2  ${provider === 'opay' && "bg-gray-100"}`}>
             <input
