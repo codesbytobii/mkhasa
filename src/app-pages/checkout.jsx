@@ -285,7 +285,7 @@ export const Component = () => {
       phone: "",
       city: "",
       state: "",
-      country: "",
+      country: "Nigeria",
     },
     validationSchema: schema,
     onSubmit: async (values) => {
@@ -380,7 +380,7 @@ export const Component = () => {
         name: res.data.user.name,
         city: prevValues.city || res.data.user.city,
         state: prevValues.state || res.data.user.state,
-        country: prevValues.country || res.data.user.country,
+        country: prevValues.country || res.data.user.country || "Nigeria",
       }));
     });
   }, []);
