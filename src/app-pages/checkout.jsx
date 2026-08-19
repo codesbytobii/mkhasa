@@ -614,7 +614,7 @@ export const SecondaryDeliveryDetails = ({ formik, user }) => {
       ...prev,
       street1: addr.street1 || "", street2: addr.street2 || "",
       zipCode: addr.zipCode || "", city: addr.city || "",
-      state: addr.state || "", country: addr.country || "",
+      state: addr.state || "", country: addr.country || prev.country || "Nigeria",
       phone: addr.phone || "",
     }));
   };
