@@ -594,11 +594,18 @@ export const SecondaryDeliveryDetails = ({ formik, user }) => {
   const [addressToDeleteId, setAddressToDeleteId] = useState(false);
 
   useEffect(() => {
+    // const defaultAddr = {
+    //   id: "default", label: "Default Address",
+    //   street1: user?.street1 || "", street2: user?.street2 || "",
+    //   zipCode: user?.zipCode || "", city: user?.city || "",
+    //   state: user?.state || "", country: user?.country || "",
+    //   phone: user?.phoneNumber || "",
+    // };
     const defaultAddr = {
       id: "default", label: "Default Address",
       street1: user?.street1 || "", street2: user?.street2 || "",
       zipCode: user?.zipCode || "", city: user?.city || "",
-      state: user?.state || "", country: user?.country || "",
+      state: user?.state || "", country: user?.country || "Nigeria",
       phone: user?.phoneNumber || "",
     };
     const savedAddresses = (user?.addresses || []).map((addr) => ({ id: addr._id, label: "Saved Address", ...addr }));
@@ -653,7 +660,8 @@ export const SecondaryDeliveryDetails = ({ formik, user }) => {
                       { placeholder: "Zip Code", field: "zipCode", value: addr.zipCode },
                       { placeholder: "City", field: "city", value: addr.city },
                       { placeholder: "State", field: "state", value: addr.state },
-                      { placeholder: "Country", field: "country", value: addr.country },
+                      // { placeholder: "Country", field: "country", value: addr.country },
+                      { placeholder: "Country", field: "country", value: formik.values.country || addr.country || "Nigeria" }, // 👈 reads formik first
                       { placeholder: "Phone", field: "phone", value: addr.phone },
                     ].map(({ placeholder, field, value }) => (
                       <Input key={field} formik={formik} placeholder={placeholder} value={value}
