@@ -71,11 +71,11 @@ export const states = [
 // ─── Monnify Bank Transfer Screen ─────────────────────────────────────────────
 
 const MonnifyTransferScreen = ({ accountDetails, paymentReference, onPaid }) => {
-  const [monnifyStatus, setMonnifyStatus] = useState<"pending" | "paid" | "expired">("pending");
-  const [timeLeft, setTimeLeft] = useState<string>("");
+  const [monnifyStatus, setMonnifyStatus] = useState("pending");
+  const [timeLeft, setTimeLeft] = useState("");
   const [copied, setCopied] = useState(false);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef(null);
+  const countdownRef = useRef(null);
   const router = useRouter();
 
   // Countdown timer
@@ -296,7 +296,7 @@ export const Component = () => {
     },
   });
 
-  const [provider, setProvider] = useState("opay");
+  const [provider, setProvider] = useState("monnify");
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(true);
   const router = useRouter();
@@ -705,12 +705,12 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
       </div>
       <div className="py-4 grid gap-4">
         <div className="flex gap-6">
-          {/* <div className={`flex items-center gap-2 p-2 rounded-lg ${provider === "monnify" && "bg-gray-100"}`}>
+          <div className={`flex items-center gap-2 p-2 rounded-lg ${provider === "monnify" && "bg-gray-100"}`}>
             <input type="radio" id="monnify" name="paymentProvider" value="monnify" checked={provider === "monnify"} onChange={handleProviderChange} />
             <label htmlFor="monnify" className="flex items-center gap-2">
               <img src="/monnify-logo.jpeg" className="w-18 h-10" alt="monnify-logo" />
             </label>
-          </div> */}
+          </div>
           <div className={`flex items-center p-2 rounded-lg gap-2 ${provider === "opay" && "bg-gray-100"}`}>
             <input type="radio" id="opay" name="paymentProvider" value="opay" checked={provider === "opay"} onChange={handleProviderChange}/>
             <label htmlFor="opay" className="flex items-center gap-2">
