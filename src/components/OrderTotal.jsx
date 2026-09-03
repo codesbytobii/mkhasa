@@ -1,3 +1,150 @@
+// "use client";
+
+// import { useAuth } from "../hooks/utils/useAuth";
+// import { useCartContext } from "../hooks/utils/useCart";
+// import { useCartQuery } from "../hooks/query/useCart";
+// import { useQueryClient } from "@tanstack/react-query";
+// import { useRouter } from "next/navigation";
+// import { useEffect, useState } from "react";
+// import { formatCurrency } from "../utils/lib";
+// import { Button } from "./ui/Button";
+
+// export const OrderTotal = ({ partial }) => {
+//   const { user } = useAuth();
+//   const { getCartFromLocalStorage, cartQuantityChanged } = useCartContext();
+//   const { data } = useCartQuery();
+//   const router = useRouter();
+//   const queryClient = useQueryClient();
+
+//   const [guestCart, setGuestCart] = useState([]);
+
+//   useEffect(() => {
+//     if (!user) {
+//       setGuestCart(getCartFromLocalStorage());
+//     }
+//   }, [cartQuantityChanged, user]);
+
+//   const hasItems = user
+//     ? (data?.items?.length > 0)
+//     : (guestCart?.length > 0);
+
+//   const proceed = () => {
+//     queryClient.invalidateQueries({ queryKey: ["cart"] });
+//     router.push("/checkout");
+//   };
+
+//   return (
+//     <div className="py-4 md:flex md:justify-between">
+//       <div className="md:mr-5">
+//         {/* <CouponCode /> */}
+//       </div>
+//       <div className="border-2 border-gray-300 pt-2 lg:pt-6 pb-5 lg:pb-12 px-5 lg:px-10 w-full lg:w-[40%] mt-5 md:mt-0 flex flex-col gap-10">
+//         <OrderSummary partial={partial} />
+//         <div className="pt-2">
+//           {hasItems && (
+//             <Button
+//               onClick={proceed}
+//               variant="rectangle"
+//               className="font-semibold text-xl py-2 w-full rounded-none text-white bg-black"
+//             >
+//               Checkout
+//             </Button>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export const OrderSummary = ({ state, partial, payStackSelected, discountPercent = 0 }) => { // NEW: discountPercent prop
+//   const { status, data } = useCartQuery();
+//   const { user } = useAuth();
+//   const { cartQuantityChanged, getCartFromLocalStorage } = useCartContext();
+//   const [deliveryFee] = useState(2500);
+//   const [guestCart, setGuestCart] = useState([]);
+//   const [guestSubtotal, setGuestSubtotal] = useState(0);
+
+//   const isGuest = !user;
+
+//   useEffect(() => {
+//     if (isGuest) {
+//       const cart = getCartFromLocalStorage();
+//       setGuestCart(cart);
+//       const total = cart.reduce(
+//         (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
+//         0
+//       );
+//       setGuestSubtotal(total);
+//     }
+//   }, [cartQuantityChanged, isGuest]);
+
+//   if (!isGuest && status === "pending") {
+//     return <p className="text-sm text-gray-500">Loading cart...</p>;
+//   }
+
+//   const subtotal = isGuest ? guestSubtotal : (data?.subTotal || 0);
+//   const items = isGuest ? guestCart : data?.items;
+
+//   if (!items || items.length === 0) return null;
+
+//   const discountAmount = Math.round((subtotal * discountPercent) / 100); // NEW
+//   const discountedSubtotal = subtotal - discountAmount; // NEW
+
+//   return (
+//     <div className="font-normal pt-2 md:p-0">
+//       <h2 className="text-lg font-semibold pb-4">Cart Summary</h2>
+//       <div className="flex flex-col gap-1 lg:gap-3">
+//         <div className="flex justify-between py-2">
+//           <span className="font-semibold">Subtotal:</span>
+//           <span className="font-semibold">{formatCurrency(subtotal, "NGN")}</span>
+//         </div>
+
+//         {discountPercent > 0 && ( // NEW: discount line + note, only when a coupon is applied
+//           <>
+//             <div className="flex justify-between py-2">
+//               <span className="font-semibold">Discount ({discountPercent}%):</span>
+//               <span className="font-semibold text-green-600">-{formatCurrency(discountAmount, "NGN")}</span>
+//             </div>
+//             <p className="text-xs text-green-600 -mt-2">
+//               {discountPercent}% coupon discount applied
+//             </p>
+//           </>
+//         )}
+
+//         <div className="flex justify-between py-2">
+//           <span className="font-semibold">Delivery Fee:</span>
+//           <span className="font-semibold">₦{deliveryFee.toLocaleString()}</span>
+//         </div>
+//         {payStackSelected && (
+//           <div className="flex justify-between py-2">
+//             <span className="font-semibold">Surcharge:</span>
+//             <span className="font-semibold">1.4%</span>
+//           </div>
+//         )}
+//         <div className="flex justify-between py-2 border-t mt-2 pt-4">
+//           <span className="font-semibold text-lg">Total:</span>
+//           <span className="font-semibold text-lg">
+//             {formatCurrency(discountedSubtotal + deliveryFee, "NGN")} {/* CHANGED: was subtotal + deliveryFee */}
+//           </span>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// const CouponCode = () => (
+//   <div className="bg-red-100 overflow-hidden relative max-w-lg md:w-[400px]">
+//     <input
+//       type="text"
+//       className="py-2 w-full pl-4 pr-32 outline-none bg-transparent"
+//       placeholder="Enter Discount Code"
+//     />
+//     <button className="bg-app-black absolute right-0 top-0 bottom-0 w-28 text-white">
+//       Apply
+//     </button>
+//   </div>
+// );
+
 "use client";
 
 import { useAuth } from "../hooks/utils/useAuth";
@@ -8,6 +155,73 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "../utils/lib";
 import { Button } from "./ui/Button";
+
+// ─── Delivery Zone Map ─────────────────────────────────────────────────────────
+// Values match the `value` field in the states array in checkout
+
+const DELIVERY_FEES = {
+  // Lagos
+  lagos: 3500,
+
+  // South Eastern States
+  abia: 4500,
+  anambra: 4500,
+  ebonyi: 4500,
+  enugu: 4500,
+  imo: 4500,
+
+  // Southern States (South-South)
+  akwa_ibom: 4500,
+  bayelsa: 4500,
+  cross_river: 4500,
+  delta: 4500,
+  edo: 4500,
+  rivers: 4500,
+
+  // South Western States
+  ekiti: 4500,
+  ogun: 4500,
+  ondo: 4500,
+  osun: 4500,
+  oyo: 4500,
+
+  // Abuja (FCT)
+  fct_abuja: 4500,
+
+  // North Central States
+  benue: 5500,
+  kogi: 5500,
+  kwara: 5500,
+  nasarawa: 5500,
+  niger: 5500,
+  plateau: 5500,
+
+  // North Western States
+  jigawa: 5500,
+  kaduna: 5500,
+  kano: 5500,
+  katsina: 5500,
+  kebbi: 5500,
+  sokoto: 5500,
+  zamfara: 5500,
+
+  // North Eastern States
+  adamawa: 5500,
+  bauchi: 5500,
+  borno: 5500,
+  gombe: 5500,
+  taraba: 5500,
+  yobe: 5500,
+};
+
+const DEFAULT_DELIVERY_FEE = 3500; // fallback before state is selected
+
+export const getDeliveryFee = (state) => {
+  if (!state) return DEFAULT_DELIVERY_FEE;
+  return DELIVERY_FEES[state] ?? DEFAULT_DELIVERY_FEE;
+};
+
+// ─── Order Total (cart page) ───────────────────────────────────────────────────
 
 export const OrderTotal = ({ partial }) => {
   const { user } = useAuth();
@@ -56,11 +270,12 @@ export const OrderTotal = ({ partial }) => {
   );
 };
 
-export const OrderSummary = ({ state, partial, payStackSelected, discountPercent = 0 }) => { // NEW: discountPercent prop
+// ─── Order Summary ─────────────────────────────────────────────────────────────
+
+export const OrderSummary = ({ state, partial, payStackSelected, discountPercent = 0 }) => {
   const { status, data } = useCartQuery();
   const { user } = useAuth();
   const { cartQuantityChanged, getCartFromLocalStorage } = useCartContext();
-  const [deliveryFee] = useState(2500);
   const [guestCart, setGuestCart] = useState([]);
   const [guestSubtotal, setGuestSubtotal] = useState(0);
 
@@ -87,8 +302,24 @@ export const OrderSummary = ({ state, partial, payStackSelected, discountPercent
 
   if (!items || items.length === 0) return null;
 
-  const discountAmount = Math.round((subtotal * discountPercent) / 100); // NEW
-  const discountedSubtotal = subtotal - discountAmount; // NEW
+  // Dynamic delivery fee based on selected state
+  const deliveryFee = getDeliveryFee(state);
+
+  const discountAmount = Math.round((subtotal * discountPercent) / 100);
+  const discountedSubtotal = subtotal - discountAmount;
+
+  // Derive zone label for display
+  const getZoneLabel = (state) => {
+    if (!state) return null;
+    const fee = DELIVERY_FEES[state];
+    if (!fee) return null;
+    if (state === "lagos") return "Lagos";
+    if (fee === 4500) return "Southern / Abuja";
+    if (fee === 5500) return "Northern";
+    return null;
+  };
+
+  const zoneLabel = getZoneLabel(state);
 
   return (
     <div className="font-normal pt-2 md:p-0">
@@ -99,7 +330,7 @@ export const OrderSummary = ({ state, partial, payStackSelected, discountPercent
           <span className="font-semibold">{formatCurrency(subtotal, "NGN")}</span>
         </div>
 
-        {discountPercent > 0 && ( // NEW: discount line + note, only when a coupon is applied
+        {discountPercent > 0 && (
           <>
             <div className="flex justify-between py-2">
               <span className="font-semibold">Discount ({discountPercent}%):</span>
@@ -112,19 +343,34 @@ export const OrderSummary = ({ state, partial, payStackSelected, discountPercent
         )}
 
         <div className="flex justify-between py-2">
-          <span className="font-semibold">Delivery Fee:</span>
-          <span className="font-semibold">₦{deliveryFee.toLocaleString()}</span>
+          <span className="font-semibold">
+            Delivery Fee{zoneLabel ? ` (${zoneLabel})` : ""}:
+          </span>
+          <span className="font-semibold">
+            {state
+              ? `₦${deliveryFee.toLocaleString()}`
+              : <span className="text-gray-400 text-sm">Select state</span>
+            }
+          </span>
         </div>
+
+        {!state && (
+          <p className="text-xs text-amber-600 -mt-1">
+            Delivery fee will update once you select your state.
+          </p>
+        )}
+
         {payStackSelected && (
           <div className="flex justify-between py-2">
             <span className="font-semibold">Surcharge:</span>
             <span className="font-semibold">1.4%</span>
           </div>
         )}
+
         <div className="flex justify-between py-2 border-t mt-2 pt-4">
           <span className="font-semibold text-lg">Total:</span>
           <span className="font-semibold text-lg">
-            {formatCurrency(discountedSubtotal + deliveryFee, "NGN")} {/* CHANGED: was subtotal + deliveryFee */}
+            {formatCurrency(discountedSubtotal + deliveryFee, "NGN")}
           </span>
         </div>
       </div>
