@@ -32,17 +32,28 @@ export const Delivery = () => {
       <div className="mb-4">
         {/* <h4 className="text-lg font-semibold mb-2">Orders Below ₦100,000</h4> */}
         <ul className="list-disc pl-5">
-          <li>Delivery Cost: ₦2,500.00 within Lagos & Abuja</li>
+          <li>Delivery Cost: These are the freight rates </li>
+          <li>Abuja - ₦4,500</li>
+          <li>Lagos - ₦3,500</li>
+          <li>Northern Western States - ₦5,500</li>
+          <li>North Eastern States - ₦5,500</li>
+          <li>North Central States - ₦5,500</li>
+          <li>South Eastern States - ₦4,500</li>
+          <li>Southern States - ₦4,500</li>
+          <li>South Western States - ₦4,500</li>
           {/* <li>Delivery Cost: ₦3,500.00 outside Lagos</li> */}
-          <li>Delivery Time:
-            <ul className="list-disc pl-5">
+        </ul>
+        <h3 className="text-xl font-semibold mt-2">Delivery Time</h3>
+        <ul className="list-disc pl-5">
+            {/* <ul className="list-disc pl-5"> */}
               {/* <li>2 days max within Lagos</li> */}
-              <li>5 days max outside Lagos</li>
-            </ul>
-          </li>
+          <li>5-7 days max outside Lagos</li>
+            {/* </ul> */}
+        
           <li>Orders placed after 4 pm will begin processing the next business day.</li>
           <li>Customers may occasionally be required to pick up their package from a designated office address.</li>
         </ul>
+            
       </div>
 
       {/* <div className="mb-4">
