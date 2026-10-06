@@ -95,7 +95,7 @@ export const Component = () => {
                     {orderdata?.pending || 0} Processing order
                   </p>
                   <p className="p-1 rounded-md text-sm text-nowrap text-yellow-500 font-bold bg-green-50">
-                    {orderdata?.dispatched || 0} Dispacthed
+                    {orderdata?.dispatched || 0} Dispatched
                   </p>
                   <p className="p-1 rounded-md text-sm text-nowrap text-green-500 font-bold bg-green-50">
                     {orderdata?.delivered || 0} Delivered

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { cn } from "../utils/cn";
 import { Button } from "./ui/Button";
@@ -78,10 +79,12 @@ export const Product = ({
     >
       {available === false && <span className="mt-2 mr-2 text-sm bg-[#00000060] rounded text-white px-2 py-[2px] w-fit ml-auto">Sold Out</span>}
       <Link href={productPath} className="w-full aspect-square relative">
-        <img
+        <Image
           src={image}
-          alt={product || name + " product image"}
-          className="h-full w-full absolute object-cover"
+          alt={`${product || name} product image`}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          className="object-cover"
         />
       </Link>
 

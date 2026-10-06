@@ -63,6 +63,7 @@ export const Component = ({ backGroundColor }) => {
   const { mergeCartsOnLogin } = useCartContext();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -104,26 +105,67 @@ export const Component = ({ backGroundColor }) => {
       password: "",
     },
     validationSchema: schema,
+    // onSubmit: async (values) => {
+    //   try {
+    //     setIsSubmitting(true);
+
+    //     const combinedValues = {
+    //       ...values,
+    //       street: `${values.street1} ${values.street2}`.trim(),
+    //     };
+
+    //     const response = await axios.post(`user/send/verification`, combinedValues, {
+    //       headers: { "Content-Type": "application/json" },
+    //     });
+
+    //     if (response?.status === 200) {
+    //       setIsSubmitting(false);
+    //       const userId = response?.data.userId;
+    //       await mergeCartsOnLogin(userId);
+    //       router.push(`/confirm-otp?email=${encodeURIComponent(values.email)}`);
+    //     }
+    //   } catch (error) {
+    //     setIsSubmitting(false);
+    //   }
+    // },
+
     onSubmit: async (values) => {
       try {
         setIsSubmitting(true);
+        setErrorMessage("");
 
         const combinedValues = {
           ...values,
           street: `${values.street1} ${values.street2}`.trim(),
         };
 
-        const response = await axios.post(`user/send/verification`, combinedValues, {
-          headers: { "Content-Type": "application/json" },
-        });
+        const response = await axios.post(
+          `user/send/verification`,
+          combinedValues,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
 
         if (response?.status === 200) {
-          setIsSubmitting(false);
           const userId = response?.data.userId;
+
           await mergeCartsOnLogin(userId);
-          router.push(`/confirm-otp?email=${encodeURIComponent(values.email)}`);
+
+          router.push(
+            `/confirm-otp?email=${encodeURIComponent(values.email)}`
+          );
         }
       } catch (error) {
+        console.error("Registration error:", error);
+
+        const message =
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Something went wrong. Please try again.";
+
+        setErrorMessage(message);
+      } finally {
         setIsSubmitting(false);
       }
     },
@@ -154,6 +196,13 @@ export const Component = ({ backGroundColor }) => {
         className="w-full max-w-xl bg-white rounded-3xl p-4"
       >
         <div className="w-[90%] md:w-[60%] mx-auto gap-10">
+          {/* Display Error Message */}
+          {errorMessage && (
+            <div className="w-full max-w-xl mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+              {errorMessage}
+            </div>
+          )}
+
           <div>
             <Label htmlFor="name">Name</Label>
             <Input name="name" formik={formik} />

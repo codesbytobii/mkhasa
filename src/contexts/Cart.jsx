@@ -1,8 +1,4 @@
 "use client";
-
-
-
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createContext, useState } from "react";
 import axios from "../utils/axios";
@@ -82,7 +78,8 @@ export const Cart = ({ children }) => {
         return
       }
       const response = await axios.get(`cart/${userId}`)
-      setCartQuantity(response?.data?.items?.length)
+      // setCartQuantity(response?.data?.items?.length)
+      setCartQuantity(response?.data?.items?.length || 0);
     } catch (error) {
       console.log(error)
     }
@@ -187,7 +184,7 @@ export const Cart = ({ children }) => {
   }
 
   // Logged-in user: hit the API
-  setCartQuantity(prev => prev - 1);
+  setCartQuantity(prev => Math.max(0, prev - 1));
   remove.mutate({ userId, itemId });
   setCanRefetch(true);
   queryClient.invalidateQueries({ queryKey: ["cart"] });

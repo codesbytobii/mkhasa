@@ -1,18 +1,18 @@
 [
     {
-        "image": "/images/mobile_riggs.jpg",
+        "image": "/images/mobile_riggs.webp",
         "link": "/search?s=riggs"
     },
     {
-        "image": "/images/mobile_fragrances.jpg",
+        "image": "/images/mobile_fragrances.webp",
         "link": "/search?s=nedens diffuser"
     },
     {
-        "image": "/images/last.jpg",
+        "image": "/images/last.webp",
         "link": "/categories/Deodorant"
     },
     {
-        "image": "/images/afnan.jpeg",
+        "image": "/images/afnan.webp",
         "link": "/search?s=afnan"
     }
 ]

@@ -285,16 +285,14 @@ const DesktopCategoryDropdown = ({ categories = [] }) => {
 
 const CartButton = () => {
   const { data, status } = useCartQuery();
-  const { cartQuantity, getCart } = useCartContext();
 
-  useEffect(() => {
-    getCart();
-  }, []);
+  const cartQuantity = data?.items?.length || 0;
 
   return (
     <div className="relative p-2">
       <Icon icon="mdi:cart" style={{ fontSize: 25 }} />
-      {status === "success" && (
+
+      {status === "success" && cartQuantity > 0 && (
         <p className="absolute grid w-4 h-4 text-xs font-bold leading-none text-white rounded-full bg-app-red place-items-center top-1 right-1">
           {cartQuantity}
         </p>

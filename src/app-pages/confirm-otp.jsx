@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import authkey from "../assets/images/lockkey.svg";
 import { Button } from "../components/ui/Button";
 import { Heading } from "../components/Heading";
 import { Wrapper } from "../components/ui/Wrapper";
@@ -55,7 +54,11 @@ export const Component = () => {
         <div className="py-12 grid items-center md:grid-cols-[45%,55%]">
           <div>
             <div className="max-w-[420px] mx-auto mb-5 md:mb-0">
-              <img src={authkey} className="w-full" alt="Alt key icon image"/>
+              <img
+                src="/images/lockkey.webp"
+                className="w-full"
+                alt="Alt key icon image"
+              />
             </div>
           </div>
 

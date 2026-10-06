@@ -1,6 +1,6 @@
 
-import image4 from "../assets/images/slide4desk.png";
-import image4mob from "../assets/images/slide4mob.jpeg";
+import image4 from "../assets/images/slide4desk.webp";
+import image4mob from "../assets/images/slide4mob.webp";
 import Link from "next/link";
 import { toProductPath } from "../utils/paths";
 export const SwiperCard5 = () => {
