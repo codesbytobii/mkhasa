@@ -1982,26 +1982,29 @@ const CartSummary = ({
           discountPercent={discountPercent}
         />
 
+
         <form
-          onSubmit={(event) => { event.preventDefault(); submitCoupon(); }}
-          className="flex justify-between items-end gap-3 my-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitCoupon();
+          }}
+          className="flex justify-between items-end gap-6 my-4"
         >
-          {/* ✅ flex-1 + min-w-0 so the input column shrinks on mobile */}
-          <div className="flex-1 min-w-0">
-            <label htmlFor="CouponCode" className="font-semibold text-sm">
+          <div>
+            <label htmlFor="CouponCode" className="font-semibold">
               Coupon Code
             </label>
-            {/* ✅ w-full so the input never bleeds out */}
+
             <input
               placeholder="CouponCode"
               id="CouponCode"
               value={coupon}
               onChange={(event) => setCoupon(event.target.value)}
-              className="border-black border p-2 w-full mt-1"
+              className="border-black border p-2"
             />
           </div>
 
-          <Button type="submit" className="btn shrink-0" disabled={submitting}>
+          <Button type="submit" className="btn" disabled={submitting}>
             {submitting ? (
               <Icon icon="svg-spinners:6-dots-rotate" style={{ fontSize: 16 }} />
             ) : (
@@ -2492,3 +2495,4 @@ const PaymentMethod = ({ className, setProvider, provider }) => {
     </div>
   );
 };
+
