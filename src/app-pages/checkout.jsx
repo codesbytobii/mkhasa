@@ -1988,7 +1988,7 @@ const CartSummary = ({
             event.preventDefault();
             submitCoupon();
           }}
-          className="flex justify-between items-end gap-6 my-4"
+          className="flex justify-between items-end gap-4 sm:gap-6 my-4"
         >
           <div>
             <label htmlFor="CouponCode" className="font-semibold">
