@@ -16,47 +16,9 @@ import axios from "../utils/axios";
 import { Label } from "../components/ui/label";
 import { Checkbox } from "../components/ui/checkbox";
 import { useCartContext } from "../hooks/utils/useCart";
+import { SearchableSelect } from "../components/SearchableSelect";
+import { states, getLgasByState } from "../data/nigerianLocations";
 
-// ✅ States array
-const states = [
-  { name: "Abia", value: "abia" },
-  { name: "Adamawa", value: "adamawa" },
-  { name: "Akwa Ibom", value: "akwa_ibom" },
-  { name: "Anambra", value: "anambra" },
-  { name: "Bauchi", value: "bauchi" },
-  { name: "Bayelsa", value: "bayelsa" },
-  { name: "Benue", value: "benue" },
-  { name: "Borno", value: "borno" },
-  { name: "Cross River", value: "cross_river" },
-  { name: "Delta", value: "delta" },
-  { name: "Ebonyi", value: "ebonyi" },
-  { name: "Edo", value: "edo" },
-  { name: "Ekiti", value: "ekiti" },
-  { name: "Enugu", value: "enugu" },
-  { name: "FCT - Abuja", value: "fct_abuja" },
-  { name: "Gombe", value: "gombe" },
-  { name: "Imo", value: "imo" },
-  { name: "Jigawa", value: "jigawa" },
-  { name: "Kaduna", value: "kaduna" },
-  { name: "Kano", value: "kano" },
-  { name: "Katsina", value: "katsina" },
-  { name: "Kebbi", value: "kebbi" },
-  { name: "Kogi", value: "kogi" },
-  { name: "Kwara", value: "kwara" },
-  { name: "Lagos", value: "lagos" },
-  { name: "Nasarawa", value: "nasarawa" },
-  { name: "Niger", value: "niger" },
-  { name: "Ogun", value: "ogun" },
-  { name: "Ondo", value: "ondo" },
-  { name: "Osun", value: "osun" },
-  { name: "Oyo", value: "oyo" },
-  { name: "Plateau", value: "plateau" },
-  { name: "Rivers", value: "rivers" },
-  { name: "Sokoto", value: "sokoto" },
-  { name: "Taraba", value: "taraba" },
-  { name: "Yobe", value: "yobe" },
-  { name: "Zamfara", value: "zamfara" },
-];
 
 export const Component = ({ backGroundColor }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -224,33 +186,39 @@ export const Component = ({ backGroundColor }) => {
             <Input name="street2" formik={formik} />
           </div>
           <div>
-            <Label htmlFor="city">City</Label>
-            <Input name="city" formik={formik} />
-          </div>
-
-          {/* ✅ State dropdown */}
-          <div>
             <Label htmlFor="state">State</Label>
-            <select
+            <SearchableSelect
               id="state"
               name="state"
               value={formik.values.state}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-black"
-            >
-              <option value="">Select your state</option>
-              {states.map(({ name, value }) => (
-                <option key={value} value={value}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            {/* ✅ Show validation error just like the other inputs */}
-            {formik.touched.state && formik.errors.state && (
-              <p className="text-red-500 text-xs mt-1">{formik.errors.state}</p>
-            )}
+              options={states}
+              onChange={(value) => {
+                formik.setFieldValue("state", value);
+                // A city/LGA from the previous state must not remain selected.
+                formik.setFieldValue("city", "");
+                formik.setFieldTouched("city", false);
+              }}
+              onBlur={() => formik.setFieldTouched("state", true)}
+              placeholder="Search or select your state"
+              error={formik.touched.state ? formik.errors.state : ""}
+            />
           </div>
+
+          <div>
+            <Label htmlFor="city">City / LGA</Label>
+            <SearchableSelect
+              id="city"
+              name="city"
+              value={formik.values.city}
+              options={getLgasByState(formik.values.state)}
+              onChange={(value) => formik.setFieldValue("city", value)}
+              onBlur={() => formik.setFieldTouched("city", true)}
+              placeholder={formik.values.state ? "Search or select your LGA" : "Select a state first"}
+              disabled={!formik.values.state}
+              error={formik.touched.city ? formik.errors.city : ""}
+            />
+          </div>
+
 
           <div>
             <Label htmlFor="password">Password</Label>

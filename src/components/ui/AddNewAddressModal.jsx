@@ -1,412 +1,343 @@
-// "use client";
-
-// // AddNewAddressModal.jsx
-// "use client";
-// import React, { useState } from "react";
-// import axios from "../../utils/axios";
-// import { Button } from "./Button";
-// import { states } from "../../app-pages/checkout";
-// import toast from "react-hot-toast";
-
-// // Simple controlled input component
-// const ModalInput = ({ name, value, onChange, placeholder }) => (
-//     <input
-//         type="text"
-//         name={name}
-//         value={value}
-//         onChange={onChange}
-//         placeholder={placeholder}
-//         className="bg-app-ash-1 rounded-sm py-2 px-4 outline-none w-full"
-//     />
-// );
-
-// export const AddNewAddressModal = ({ userId, onClose, onAdd }) => {
-//     const [formValues, setFormValues] = useState({
-//         street1: "",
-//         street2: "",
-//         zipCode: "",
-//         city: "",
-//         state: "",
-//         country: "Nigeria",
-//         phone: "",
-//     });
-
-//     const [errors, setErrors] = useState({});
-//     const [saving, setSaving] = useState(false);
-
-//     // Handle input change
-//     const handleChange = (e) => {
-//         const { name, value } = e.target;
-//         setFormValues((prev) => ({ ...prev, [name]: value }));
-//     };
-
-//     // Submit handler
-//     const handleSubmit = async (e) => {
-//         setSaving(true);
-
-//         // Simple validation
-//         const newErrors = {};
-//         if (!formValues.street1) newErrors.street1 = "Street 1 is required";
-//         if (!formValues.zipCode) newErrors.zipCode = "Zip Code is required";
-//         if (!formValues.city) newErrors.city = "City is required";
-//         if (!formValues.state) newErrors.state = "State is required";
-//         if (!formValues.country) newErrors.country = "Country is required";
-//         if (!formValues.phone) newErrors.phone = "Phone is required";
-
-//         setErrors(newErrors);
-
-//         if (Object.keys(newErrors).length > 0) {
-//             setSaving(false);
-//             return;
-//         }
-
-//         try {
-//             const res = await axios.post(`/add/sa/${userId}`, formValues);
-//             console.log(res.data)
-//             toast.success("Address added successfully.")
-//             onAdd(res.data.addresses);
-//             onClose();
-//         } catch (err) {
-//             console.error("Failed to add address:", err);
-//         } finally {
-//             setSaving(false);
-//         }
-//     };
-
-//     // Close modal when clicking backdrop
-//     const handleBackdropClick = (e) => {
-//         if (e.target.id === "backdrop") onClose();
-//     };
-
-//     return (
-//         <div
-//             id="backdrop"
-//             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-//             onClick={handleBackdropClick}
-//         >
-//             <div className="bg-white rounded-xl max-w-xl w-[90vw] p-6 shadow-lg relative">
-//                 <h3 className="text-lg font-bold mb-4">Add New Address</h3>
-//                 <div className="grid gap-3">
-//                     <ModalInput
-//                         placeholder="Street 1"
-//                         name="street1"
-//                         value={formValues.street1}
-//                         onChange={handleChange}
-//                     />
-//                     {errors.street1 && <p className="text-red-500 text-sm">{errors.street1}</p>}
-
-//                     <ModalInput
-//                         placeholder="Street 2"
-//                         name="street2"
-//                         value={formValues.street2}
-//                         onChange={handleChange}
-//                     />
-
-//                     <ModalInput
-//                         placeholder="Zip Code"
-//                         name="zipCode"
-//                         value={formValues.zipCode}
-//                         onChange={handleChange}
-//                     />
-//                     {errors.zipCode && <p className="text-red-500 text-sm">{errors.zipCode}</p>}
-
-//                     <ModalInput
-//                         placeholder="City"
-//                         name="city"
-//                         value={formValues.city}
-//                         onChange={handleChange}
-//                     />
-//                     {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
-
-//                     <select
-//                         name="state"
-//                         value={formValues.state}
-//                         onChange={handleChange}
-//                         className="bg-app-ash-1 rounded-sm py-1 px-2 outline-none"
-//                     >
-//                         <option value="">Select State</option>
-//                         {states.map(({ name, value }, i) => (
-//                             <option key={i} value={value} className="bg-app-ash-1 w-full">
-//                                 {name}
-//                             </option>
-//                         ))}
-//                     </select>
-//                     {errors.state && <p className="text-red-500 text-sm">{errors.state}</p>}
-
-//                     <ModalInput
-//                         placeholder="Country"
-//                         name="country"
-//                         value={formValues.country}
-//                         onChange={handleChange}
-//                     />
-//                     {errors.country && <p className="text-red-500 text-sm">{errors.country}</p>}
-
-//                     <ModalInput
-//                         placeholder="Phone"
-//                         name="phone"
-//                         value={formValues.phone}
-//                         onChange={handleChange}
-//                     />
-//                     {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
-
-//                     <div className="flex justify-end gap-2 mt-4">
-//                         <Button type="button" onClick={onClose}>
-//                             Cancel
-//                         </Button>
-//                         <Button disabled={saving} type="submit" onClick={handleSubmit} className="bg-black text-white">
-//                             {saving ? "Saving..." : "Save Address"}
-//                         </Button>
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button } from "./Button";
-import { states } from "../../app-pages/checkout";
+import { SearchableSelect } from "../SearchableSelect";
+import {
+  states,
+  getLgasByState,
+} from "../../data/nigerianLocations";
 
-// Simple controlled input component
-const ModalInput = ({ name, value, onChange, placeholder }) => ( <input
-     type="text"
-     name={name}
-     value={value}
-     onChange={onChange}
-     placeholder={placeholder}
-     className="bg-app-ash-1 rounded-sm py-2 px-4 outline-none w-full"
- />
-);
-
-export const AddNewAddressModal = ({ onClose, onAdd }) => {
-const [formValues, setFormValues] = useState({
-street1: "",
-street2: "",
-zipCode: "",
-city: "",
-state: "",
-country: "Nigeria",
-phone: "",
-});
-
-const [errors, setErrors] = useState({});
-const [saving, setSaving] = useState(false);
-
-// Handle input changes
-const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormValues((prev) => ({
-        ...prev,
-        [name]: value,
-    }));
+const initialFormValues = {
+  street1: "",
+  street2: "",
+  zipCode: "",
+  city: "",
+  state: "",
+  country: "Nigeria",
+  phone: "",
 };
 
-// Submit handler
-const handleSubmit = async (e) => {
-    e?.preventDefault();
+const ModalInput = ({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  type = "text",
+  error,
+}) => {
+  return (
+    <div className="w-full">
+      <label
+        htmlFor={name}
+        className="mb-1 block text-sm font-medium text-gray-700"
+      >
+        {label}
+        {required && <span className="text-red-500"> *</span>}
+      </label>
 
-    // Simple validation
-    const newErrors = {};
+      <input
+        id={name}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        autoComplete="off"
+        className={`w-full rounded-sm border-none bg-app-ash-1 px-4 py-2 outline-none focus:ring-2 focus:ring-black ${
+          error ? "ring-1 ring-red-500" : ""
+        }`}
+      />
+
+      {error && (
+        <p className="mt-1 text-xs text-red-500">{error}</p>
+      )}
+    </div>
+  );
+};
+
+export const AddNewAddressModal = ({ onClose, onAdd }) => {
+  const [formValues, setFormValues] = useState(initialFormValues);
+  const [errors, setErrors] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const lgaOptions = useMemo(
+    () => getLgasByState(formValues.state),
+    [formValues.state]
+  );
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormValues((previousValues) => ({
+      ...previousValues,
+      [name]: value,
+    }));
+
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      [name]: "",
+    }));
+
+    setSubmitError("");
+  };
+
+  const handleStateChange = (selectedState) => {
+    setFormValues((previousValues) => ({
+      ...previousValues,
+      state: selectedState,
+      city: "",
+    }));
+
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      state: "",
+      city: "",
+    }));
+
+    setSubmitError("");
+  };
+
+  const handleCityChange = (selectedCity) => {
+    setFormValues((previousValues) => ({
+      ...previousValues,
+      city: selectedCity,
+    }));
+
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      city: "",
+    }));
+
+    setSubmitError("");
+  };
+
+  const validateForm = () => {
+    const nextErrors = {};
 
     if (!formValues.street1.trim()) {
-        newErrors.street1 = "Street 1 is required";
+      nextErrors.street1 = "Street address is required.";
     }
 
     if (!formValues.zipCode.trim()) {
-        newErrors.zipCode = "Zip Code is required";
-    }
-
-    if (!formValues.city.trim()) {
-        newErrors.city = "City is required";
+      nextErrors.zipCode = "ZIP/postal code is required.";
     }
 
     if (!formValues.state) {
-        newErrors.state = "State is required";
+      nextErrors.state = "Please select a state.";
+    }
+
+    if (!formValues.city) {
+      nextErrors.city = "Please select a city/LGA.";
     }
 
     if (!formValues.country.trim()) {
-        newErrors.country = "Country is required";
+      nextErrors.country = "Country is required.";
     }
 
     if (!formValues.phone.trim()) {
-        newErrors.phone = "Phone is required";
+      nextErrors.phone = "Phone number is required.";
     }
 
-    setErrors(newErrors);
+    setErrors(nextErrors);
 
-    if (Object.keys(newErrors).length > 0) {
-        return;
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (isSaving || !validateForm()) {
+      return;
     }
+
+    setIsSaving(true);
+    setSubmitError("");
 
     try {
-        setSaving(true);
-
-        // IMPORTANT:
-        // Do not make the API request here.
-        // The parent handleAddAddress() handles the API request.
-        await onAdd(formValues);
-
+      await onAdd({
+        ...formValues,
+        street1: formValues.street1.trim(),
+        street2: formValues.street2.trim(),
+        zipCode: formValues.zipCode.trim(),
+        phone: formValues.phone.trim(),
+        country: formValues.country.trim(),
+      });
     } catch (error) {
-        console.error("Failed to add address:", error);
+      setSubmitError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to add address. Please try again."
+      );
     } finally {
-        setSaving(false);
+      setIsSaving(false);
     }
-};
+  };
 
-// Close modal when clicking backdrop
-const handleBackdropClick = (e) => {
-    if (e.target.id === "backdrop") {
-        onClose();
-    }
-};
-
-return (
+  return (
     <div
-        id="backdrop"
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-        onClick={handleBackdropClick}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 px-4 py-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-address-title"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget && !isSaving) {
+          onClose();
+        }
+      }}
     >
-        <div className="bg-white rounded-xl max-w-xl w-[90vw] p-6 shadow-lg relative">
-            <h3 className="text-lg font-bold mb-4">
-                Add New Address
-            </h3>
+      <div className="max-h-full w-full max-w-lg overflow-y-auto rounded-xl bg-white p-5 shadow-xl sm:p-6">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <h2
+            id="add-address-title"
+            className="text-lg font-semibold text-gray-900"
+          >
+            Add New Address
+          </h2>
 
-            <div className="grid gap-3">
-
-                {/* Street 1 */}
-                <ModalInput
-                    placeholder="Street 1"
-                    name="street1"
-                    value={formValues.street1}
-                    onChange={handleChange}
-                />
-
-                {errors.street1 && (
-                    <p className="text-red-500 text-sm">
-                        {errors.street1}
-                    </p>
-                )}
-
-                {/* Street 2 */}
-                <ModalInput
-                    placeholder="Street 2"
-                    name="street2"
-                    value={formValues.street2}
-                    onChange={handleChange}
-                />
-
-                {/* Zip Code */}
-                <ModalInput
-                    placeholder="Zip Code"
-                    name="zipCode"
-                    value={formValues.zipCode}
-                    onChange={handleChange}
-                />
-
-                {errors.zipCode && (
-                    <p className="text-red-500 text-sm">
-                        {errors.zipCode}
-                    </p>
-                )}
-
-                {/* City */}
-                <ModalInput
-                    placeholder="City"
-                    name="city"
-                    value={formValues.city}
-                    onChange={handleChange}
-                />
-
-                {errors.city && (
-                    <p className="text-red-500 text-sm">
-                        {errors.city}
-                    </p>
-                )}
-
-                {/* State */}
-                <select
-                    name="state"
-                    value={formValues.state}
-                    onChange={handleChange}
-                    className="bg-app-ash-1 rounded-sm py-2 px-4 outline-none"
-                >
-                    <option value="">
-                        Select State
-                    </option>
-
-                    {states.map(({ name, value }) => (
-                        <option
-                            key={value}
-                            value={value}
-                            className="bg-app-ash-1"
-                        >
-                            {name}
-                        </option>
-                    ))}
-                </select>
-
-                {errors.state && (
-                    <p className="text-red-500 text-sm">
-                        {errors.state}
-                    </p>
-                )}
-
-                {/* Country */}
-                <ModalInput
-                    placeholder="Country"
-                    name="country"
-                    value={formValues.country}
-                    onChange={handleChange}
-                />
-
-                {errors.country && (
-                    <p className="text-red-500 text-sm">
-                        {errors.country}
-                    </p>
-                )}
-
-                {/* Phone */}
-                <ModalInput
-                    placeholder="Phone"
-                    name="phone"
-                    value={formValues.phone}
-                    onChange={handleChange}
-                />
-
-                {errors.phone && (
-                    <p className="text-red-500 text-sm">
-                        {errors.phone}
-                    </p>
-                )}
-
-                {/* Buttons */}
-                <div className="flex justify-end gap-2 mt-4">
-
-                    <Button
-                        type="button"
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </Button>
-
-                    <Button
-                        disabled={saving}
-                        type="button"
-                        onClick={handleSubmit}
-                        className="bg-black text-white"
-                    >
-                        {saving
-                            ? "Saving..."
-                            : "Save Address"}
-                    </Button>
-
-                </div>
-            </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSaving}
+            aria-label="Close modal"
+            className="rounded p-1 text-2xl leading-none text-gray-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            &times;
+          </button>
         </div>
-    </div>
-);
 
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <ModalInput
+            label="Street Address"
+            name="street1"
+            value={formValues.street1}
+            onChange={handleChange}
+            placeholder="Enter your street address"
+            required
+            error={errors.street1}
+          />
+
+          <ModalInput
+            label="Additional Address Details"
+            name="street2"
+            value={formValues.street2}
+            onChange={handleChange}
+            placeholder="Apartment, suite, landmark (optional)"
+          />
+
+          <ModalInput
+            label="ZIP / Postal Code"
+            name="zipCode"
+            value={formValues.zipCode}
+            onChange={handleChange}
+            placeholder="Enter ZIP or postal code"
+            required
+            error={errors.zipCode}
+          />
+
+          {/* Searchable State dropdown */}
+          <div className="w-full">
+            <label
+              htmlFor="state"
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
+              State <span className="text-red-500">*</span>
+            </label>
+
+            <SearchableSelect
+              id="state"
+              name="state"
+              value={formValues.state}
+              options={states}
+              placeholder="Search or select a state"
+              onChange={handleStateChange}
+              error={errors.state}
+            />
+          </div>
+
+          {/* Searchable LGA dropdown, dependent on State */}
+          <div className="w-full">
+            <label
+              htmlFor="city"
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
+              City / Local Government Area{" "}
+              <span className="text-red-500">*</span>
+            </label>
+
+            <SearchableSelect
+              id="city"
+              name="city"
+              value={formValues.city}
+              options={lgaOptions}
+              placeholder={
+                formValues.state
+                  ? "Search or select an LGA"
+                  : "Select a state first"
+              }
+              disabled={!formValues.state}
+              onChange={handleCityChange}
+              error={errors.city}
+            />
+          </div>
+
+          <ModalInput
+            label="Country"
+            name="country"
+            value={formValues.country}
+            onChange={handleChange}
+            placeholder="Enter country"
+            required
+            error={errors.country}
+          />
+
+          <ModalInput
+            label="Phone Number"
+            name="phone"
+            value={formValues.phone}
+            onChange={handleChange}
+            placeholder="Enter phone number"
+            type="tel"
+            required
+            error={errors.phone}
+          />
+
+          {submitError && (
+            <p
+              role="alert"
+              className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600"
+            >
+              {submitError}
+            </p>
+          )}
+
+          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 sm:w-auto"
+            >
+              Cancel
+            </Button>
+
+            <Button
+                type="button"
+                disabled={isSaving}
+                onClick={handleSubmit}
+                className="w-full rounded-md bg-black px-4 py-2 text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                {isSaving ? "Saving..." : "Save Address"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
+
+export default AddNewAddressModal;
