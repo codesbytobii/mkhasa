@@ -18,6 +18,9 @@ export const Component = () => {
   const [canSubmit, setCanSubmit] = useState(() =>
     verificationCode.every((letter) => letter !== "")
   );
+
+  const registrationTrackedRef = useRef(false);
+
   const onSubmit = async (e) => {
     setIsSubmitting(true);
     try {
@@ -34,9 +37,30 @@ export const Component = () => {
       );
 
       if (response?.status === 200) {
+        // Meta Pixel — CompleteRegistration
+        if (
+          !registrationTrackedRef.current &&
+          typeof window !== "undefined" &&
+          typeof window.fbq === "function"
+        ) {
+          window.fbq("track", "CompleteRegistration", {
+            content_name: "Mkhasa Account Registration",
+            status: true,
+          });
+
+          registrationTrackedRef.current = true;
+
+          console.log("Meta Pixel CompleteRegistration event sent.");
+        } else if (typeof window.fbq !== "function") {
+          console.warn(
+            "CompleteRegistration was not tracked: Meta Pixel is unavailable."
+          );
+        }
+
         setIsSubmitting(false);
-        router.push(`/account-creation-success`);
+        router.push("/account-creation-success");
       }
+
     } catch (error) {
       setIsSubmitting(false);
       // console.log(error?.response?.data?.message);

@@ -169,6 +169,9 @@ export const Component = ({
       applyDiscount: product?.discount === true,
       series: product?.series,
     });
+
+    trackMetaAddToCart(product, count, product.price);
+
     if (typeof window !== "undefined" && window.twq) {
       window.twq("event", "tw-pioaa-pioad", {
         value: product?.price * count,
@@ -187,9 +190,81 @@ export const Component = ({
     }
   };
 
-  const onClickCheckout = () => {
-    addToCart({ itemId: product?._id, quantity: count || 1, price: product?.price, localCartImage: product?.mainImage, name: product?.name });
-    router.push("/checkout");
+  // const onClickCheckout = () => {
+  //   addToCart({ itemId: product?._id, quantity: count || 1, price: product?.price, localCartImage: product?.mainImage, name: product?.name });
+  //   router.push("/checkout");
+  // };
+
+  
+  const onClickCheckout = async () => {
+    if (!product?._id) return;
+
+    try {
+      await addToCart({
+        itemId: product._id,
+        quantity: count || 1,
+        price: product.price,
+        localCartImage: product.mainImage,
+        name: product.name,
+      });
+
+      trackMetaAddToCart(product, count || 1, product.price);
+
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Failed to add product before checkout:", error);
+    }
+  };
+
+  
+  const handleDiscountAddToCart = async () => {
+    const quantity = Number(selectedQuantity);
+
+    if (!product?._id || !Number.isFinite(quantity) || quantity <= 0) {
+      return;
+    }
+
+    const discount = disVar.find(
+      (item) => item.quantity === selectedDiscount
+    )?.dis ?? 0;
+
+    const unitPrice = calculateDiscountedPrice(
+      product.price,
+      discount
+    );
+
+    try {
+      await addToCart({
+        itemId: product._id,
+        quantity,
+        applyDiscount: product.discount === true,
+        name: product.name,
+        price: product.price,
+        localCartImage: product.mainImage,
+        series: product.series,
+      });
+
+      trackMetaAddToCart(product, quantity, unitPrice);
+
+      if (typeof window !== "undefined" && window.twq) {
+        window.twq("event", "tw-pioaa-pioad", {
+          value: unitPrice * quantity,
+          currency: "NGN",
+          contents: [{
+            content_type: "product",
+            content_id: product._id,
+            content_name: product.name,
+            content_price: unitPrice,
+            num_items: quantity,
+            content_group_id: product.category || "discounted",
+          }],
+          status: "started",
+          conversion_id: `discount-cart-${Date.now()}`,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to add discounted product:", error);
+    }
   };
 
   const images = [
@@ -220,28 +295,99 @@ export const Component = ({
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [addingFbt, setAddingFbt] = useState(false);
 
+  // const handleSelectProducts = (checked, productId) => {
+  //   if (checked) {
+  //     setSelectedProducts((prev) => [...prev, { "": productId }]);
+  //   } else {
+  //     setSelectedProducts(selectedProducts.filter((p) => p !== productId));
+  //   }
+  // };
+
+  
   const handleSelectProducts = (checked, productId) => {
-    if (checked) {
-      setSelectedProducts((prev) => [...prev, { "": productId }]);
-    } else {
-      setSelectedProducts(selectedProducts.filter((p) => p !== productId));
-    }
+    setSelectedProducts((prev) =>
+      checked
+        ? [...new Set([...prev, productId])]
+        : prev.filter((id) => id !== productId)
+    );
   };
 
+  // const handleAddManyToCart = async () => {
+  //   setAddingFbt(true);
+  //   const userId = getUserId();
+  //   try {
+  //     if (!userId) return;
+  //     await axios.post(`${BASE_URL}/add/fbt/cart/${userId}`, {
+  //       productIds: selectedProducts,
+  //       quantity: 1,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setAddingFbt(false);
+  //   }
+  // };
+
+  
   const handleAddManyToCart = async () => {
-    setAddingFbt(true);
     const userId = getUserId();
+    if (!userId || selectedProducts.length === 0) return;
+
+    setAddingFbt(true);
+
     try {
-      if (!userId) return;
       await axios.post(`${BASE_URL}/add/fbt/cart/${userId}`, {
         productIds: selectedProducts,
         quantity: 1,
       });
+
+      // Track each selected product after the API succeeds.
+      for (const productId of selectedProducts) {
+        const item = product?.FBT?.find(
+          (p) => p._id === productId
+        );
+
+        if (item) {
+          trackMetaAddToCart(item, 1, item.price);
+        }
+      }
     } catch (error) {
-      console.log(error);
+      console.error("Failed to add FBT products:", error);
     } finally {
       setAddingFbt(false);
     }
+  };
+
+  
+  const trackMetaAddToCart = (item, quantity, unitPrice) => {
+    if (typeof window === "undefined" || typeof window.fbq !== "function") {
+      return;
+    }
+
+    const price = Number(unitPrice);
+    const qty = Number(quantity);
+
+    if (!item?._id || !Number.isFinite(price) ||
+        !Number.isFinite(qty) || qty <= 0) {
+      return;
+    }
+
+    window.fbq("track", "AddToCart", {
+      content_ids: [String(item._id)],
+      content_type: "product",
+      content_name: item.name,
+      content_category: item.category,
+      value: Number((price * qty).toFixed(2)),
+      currency: "NGN",
+      num_items: qty,
+      contents: [
+        {
+          id: String(item._id),
+          quantity: qty,
+          item_price: price,
+        },
+      ],
+    });
   };
 
   if (isLoading) return <LoadingSpinner />;
@@ -330,7 +476,8 @@ export const Component = ({
                   {!showDiscount ? (
                     <div
                       className="bg-black rounded-full md:rounded-none gap-6 flex justify-between items-center px-8 cursor-pointer hover:bg-[#333] transition-all text-white h-12 mt-4"
-                      onClick={() => setShowDiscount(true)}
+                      // onClick={() => setShowDiscount(true)}
+                      onClick={handleDiscountAddToCart}
                     >
                       <img src={icons.Star} alt="Star" />
                       <span className="leading-4 text-sm text-center">Click Here To Find Better Deals</span>

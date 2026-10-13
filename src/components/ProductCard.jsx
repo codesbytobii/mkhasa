@@ -36,38 +36,98 @@ export const Product = ({
   const increment = () => setQuantity((prev) => prev + 1);
   const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
-  const handleAddToCart = async (e) => {
-    e.stopPropagation();
-    await addToCart({
-      itemId: id,
-      quantity,
-      applyDiscount: false,
-      name,
-      price: originalPrice,
-      localCartImage: image,
-    });
-    if (window?.twq) {
-      window.twq("event", "tw-pioaa-pioad", {
-        value: product?.price * quantity,
-        currency: "NGN",
-        contents: [
-          {
-            content_type: "product",
-            content_id: product?._id,
-            content_name: product?.name,
-            content_price: product?.price,
-            num_items: quantity,
-            content_group_id: product?.category || "discounted",
-          },
-        ],
-        status: "started",
-        conversion_id: `discount-cart-${Date.now()}`,
-        // email_address: user?.email || null,
-      });
-    }
-  };
+  // const handleAddToCart = async (e) => {
+  //   e.stopPropagation();
+  //   await addToCart({
+  //     itemId: id,
+  //     quantity,
+  //     applyDiscount: false,
+  //     name,
+  //     price: originalPrice,
+  //     localCartImage: image,
+  //   });
+  //   if (window?.twq) {
+  //     window.twq("event", "tw-pioaa-pioad", {
+  //       value: product?.price * quantity,
+  //       currency: "NGN",
+  //       contents: [
+  //         {
+  //           content_type: "product",
+  //           content_id: product?._id,
+  //           content_name: product?.name,
+  //           content_price: product?.price,
+  //           num_items: quantity,
+  //           content_group_id: product?.category || "discounted",
+  //         },
+  //       ],
+  //       status: "started",
+  //       conversion_id: `discount-cart-${Date.now()}`,
+  //       // email_address: user?.email || null,
+  //     });
+  //   }
+  // };
 
   // console.log(name)
+
+  
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+
+    try {
+      await addToCart({
+        itemId: id,
+        quantity,
+        applyDiscount: false,
+        name,
+        price: originalPrice,
+        localCartImage: image,
+      });
+
+      // Meta Pixel: AddToCart
+      if (typeof window !== "undefined" && typeof window.fbq === "function") {
+        const price = Number(discountedPrice ?? originalPrice);
+
+        window.fbq("track", "AddToCart", {
+          content_ids: [String(id)],
+          content_type: "product",
+          content_name: name || product,
+          content_category: category,
+          value: price * quantity,
+          currency: "NGN",
+          num_items: quantity,
+          contents: [
+            {
+              id: String(id),
+              quantity,
+              item_price: price,
+            },
+          ],
+        });
+      }
+
+      // Existing X (Twitter) tracking
+      if (typeof window !== "undefined" && window.twq) {
+        window.twq("event", "tw-pioaa-pioad", {
+          value: Number(discountedPrice ?? originalPrice) * quantity,
+          currency: "NGN",
+          contents: [
+            {
+              content_type: "product",
+              content_id: id,
+              content_name: name || product,
+              content_price: Number(discountedPrice ?? originalPrice),
+              num_items: quantity,
+              content_group_id: category || "discounted",
+            },
+          ],
+          status: "started",
+          conversion_id: `discount-cart-${Date.now()}`,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to add product to cart:", error);
+    }
+  };
 
   return (
     <div

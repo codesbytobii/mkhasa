@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Wrapper } from "../components/ui/Wrapper";
 import { Success } from "../components/Success";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "../utils/axios";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Error } from "../components/Error";
@@ -41,6 +41,114 @@ export const Component = () => {
   const opayReference = provider === "opay" ? searchParams.get("reference") : null;
 
   const status = searchParams.get("status");
+
+// --- Meta Pixel Purchase tracking ---
+const purchaseTrackedRef = useRef(false);
+
+useEffect(() => {
+  if (verification !== "successful" || purchaseTrackedRef.current) return;
+
+  let itemsToBuy;
+
+  try {
+    itemsToBuy = JSON.parse(sessionStorage.getItem("items_to_buy"));
+  } catch (error) {
+    console.error("Could not parse items_to_buy:", error);
+    return;
+  }
+
+  if (!itemsToBuy || typeof window.fbq !== "function") {
+    console.warn("Purchase not tracked: order data or Meta Pixel is unavailable.");
+    return;
+  }
+
+  const transactionId = String(
+    transaction_id || tx_ref || opayReference || itemsToBuy._id || itemsToBuy.id || ""
+  );
+
+  // Use a transaction-specific key to avoid duplicate Purchase events.
+  const storageKey = transactionId
+    ? `meta_purchase_tracked_${transactionId}`
+    : null;
+
+  if (storageKey && sessionStorage.getItem(storageKey)) {
+    purchaseTrackedRef.current = true;
+    return;
+  }
+
+  const orderItems = Array.isArray(itemsToBuy.items)
+    ? itemsToBuy.items
+    : [];
+
+  const contents = orderItems
+    .map((item) => {
+      const product = item.productId || item.product || item.item || {};
+      const rawId =
+        typeof product === "object"
+          ? product._id || product.id
+          : product;
+
+      const quantity = Number(item.quantity ?? item.qty ?? 1);
+      const price = Number(
+        item.price ?? item.unitPrice ?? product.price ?? 0
+      );
+
+      if (
+        !rawId ||
+        !Number.isFinite(quantity) ||
+        quantity <= 0 ||
+        !Number.isFinite(price) ||
+        price < 0
+      ) {
+        return null;
+      }
+
+      return {
+        id: String(rawId),
+        quantity,
+        item_price: price,
+      };
+    })
+    .filter(Boolean);
+
+  // Prefer the actual total if your stored order object has one.
+  // Otherwise, use subTotal as a fallback.
+  const value = Number(
+    itemsToBuy.totalAmount ??
+    itemsToBuy.total ??
+    itemsToBuy.grandTotal ??
+    itemsToBuy.subTotal
+  );
+
+  if (!Number.isFinite(value) || value < 0) {
+    console.error("Purchase not tracked: invalid order total.", itemsToBuy);
+    return;
+  }
+
+  const payload = {
+    content_type: "product",
+    content_ids: contents.map((item) => item.id),
+    contents,
+    num_items: contents.reduce((sum, item) => sum + item.quantity, 0),
+    value: Number(value.toFixed(2)),
+    currency: "NGN",
+  };
+
+  window.fbq("track", "Purchase", payload);
+
+  purchaseTrackedRef.current = true;
+
+  if (storageKey) {
+    sessionStorage.setItem(storageKey, "true");
+  }
+
+  console.log("Meta Pixel Purchase event sent:", {
+    transactionId,
+    ...payload,
+  });
+}, [verification, transaction_id, tx_ref, opayReference]);
+
+
 
   // --- Google Ads conversion tracking ---
   useEffect(() => {
@@ -106,9 +214,6 @@ export const Component = () => {
         if (res.status === 200 || res.data) {
           setVerification("successful");
           toast.success("Payment verified successfully!");
-
-          console.log(itemsToBuy);
-          console.log(itemsToBuy?.items);
 
           // Twitter/X pixel — Paystack only
           if (

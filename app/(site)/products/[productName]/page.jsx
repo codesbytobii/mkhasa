@@ -1,4 +1,5 @@
 import { createPageMetadata, formatSlugForTitle } from "@/seo/nextMetadata";
+import ViewContentTracker from "./ViewContentTracker";
 import { noIndexMetadata } from "@/seo/noIndexMetadata";
 import { getProductServerData } from "@/seo/serverData";
 import { toProductPath, toProductSlug } from "@/utils/paths";
@@ -151,6 +152,9 @@ export default async function ProductPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
+
+      <ViewContentTracker product={initialProduct} />
+      
       <ProductPageClient
         productName={raw}
         initialProduct={initialProduct}
