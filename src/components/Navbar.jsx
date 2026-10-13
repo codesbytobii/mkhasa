@@ -1,3 +1,306 @@
+// "use client";
+
+// import { Wrapper } from "./ui/Wrapper";
+// import { Icon } from "@iconify/react";
+// import { useEffect, useState } from "react";
+// import Link from "next/link";
+// import { useRouter } from "next/navigation";
+// import { useCartQuery } from "../hooks/query/useCart";
+// import { Logo } from "./ui/Logo";
+// import { Loader2 } from "lucide-react";
+// import { useCartContext } from "../hooks/utils/useCart";
+// import { toAppealPath, toCategoryPath, toProductPath } from "../utils/paths";
+
+// const APPEAL = ["Men", "Women", "Unisex"];
+// const API_BASE =
+//   process.env.NEXT_PUBLIC_BASE_URL ||
+//   "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
+
+// const Navbar = ({ initialCategories = [] }) => {
+//   const router = useRouter();
+//   const [query, setQuery] = useState("");
+//   const [searching, setSearching] = useState(false);
+//   const [results, setResults] = useState([]);
+//   const [expandMobile, setExpandMobile] = useState(false);
+
+//   const handleSearch = async (searchQuery) => {
+//     if (!searchQuery) return;
+//     try {
+//       const res = await fetch(
+//         `${API_BASE}/search?name=${encodeURIComponent(searchQuery)}&limit=8`
+//       );
+//       const data = await res.json();
+//       setResults(data.products ?? []);
+//     } catch {
+//       setResults([]);
+//     } finally {
+//       setSearching(false);
+//     }
+//   };
+
+//   const handleChangeInput = (text) => {
+//     setSearching(true);
+//     setQuery(text);
+//     const timer = setTimeout(() => handleSearch(text), 1000);
+//     return () => clearTimeout(timer);
+//   };
+
+//   const goToProduct = (name) => {
+//     if (!name) return;
+//     router.push(toProductPath(name));
+//     setQuery("");
+//   };
+
+//   const onSubmit = (e) => {
+//     e.preventDefault();
+//     const value = e.target?.search?.value;
+//     if (!value) return;
+//     setQuery("");
+//     router.push(`/search?s=${value}`);
+//   };
+
+//   return (
+//     <Wrapper className="py-4 relative">
+//       {/* Mobile Navbar */}
+//       <nav className="lg:hidden" aria-label="Mobile navigation">
+//         <div className="flex items-center justify-between mb-4">
+//           <button
+//             onClick={() => setExpandMobile(!expandMobile)}
+//             aria-label="Open menu"
+//           >
+//             <Icon icon="charm:menu-hamburger" style={{ fontSize: 24 }} />
+//           </button>
+//           <Logo />
+//           <div className="flex items-center gap-4">
+//             <Link href="/cart" className="flex gap-2 items-center">
+//               <CartButton /> Cart
+//             </Link>
+//             <Link href="/account" aria-label="Account">
+//               <Icon icon="mdi:account" style={{ fontSize: 24 }} />
+//             </Link>
+//           </div>
+//         </div>
+//         <form onSubmit={onSubmit} className="relative">
+//           <input
+//             id="search"
+//             name="search"
+//             type="search"
+//             placeholder="Search For Item"
+//             className="w-full px-4 py-2 rounded-full pr-8 outline-none bg-app-ash"
+//             onChange={(e) => handleChangeInput(e.target.value)}
+//           />
+//           <button
+//             aria-label="Search for product"
+//             className="absolute right-3 top-1/2 -translate-y-1/2"
+//             type="submit"
+//           >
+//             <Icon icon="mynaui:search" style={{ fontSize: 20 }} />
+//           </button>
+//         </form>
+
+//         {query && (
+//           <div className="border rounded flex min-h-[200px] justify-center">
+//             {searching ? (
+//               <Loader2 className="animate-spin m-auto" />
+//             ) : results.length === 0 ? (
+//               <p className="flex items-center">No result</p>
+//             ) : (
+//               <ul className="w-full h-full">
+//                 {results.slice(0, 8).map((item, index) => (
+//                   <li
+//                     key={index}
+//                     className="p-2 text-xs cursor-pointer hover:bg-gray-100"
+//                     onClick={() => goToProduct(item.name)}
+//                   >
+//                     {item.name}
+//                   </li>
+//                 ))}
+//               </ul>
+//             )}
+//           </div>
+//         )}
+//       </nav>
+
+//       {/* Desktop Navbar */}
+//       <nav
+//         className="hidden lg:flex items-center justify-between gap-x-4"
+//         aria-label="Desktop navigation"
+//       >
+//         <Logo />
+
+//         <div className="flex items-center font-semibold">
+//           <CategoryDropdown categories={initialCategories} />
+//         </div>
+
+//         <div className="flex-grow max-w-md relative">
+//           <form onSubmit={onSubmit} className="flex-grow max-w-md relative">
+//             <input
+//               id="search"
+//               name="search"
+//               type="search"
+//               placeholder="Search product"
+//               className="w-full px-6 py-2 rounded-full pr-8 outline-none bg-app-ash"
+//               onChange={(e) => handleChangeInput(e.target.value)}
+//             />
+//             <button
+//               aria-label="Search for product"
+//               className="absolute right-3 top-1/2 -translate-y-1/2"
+//               type="submit"
+//             >
+//               <Icon icon="mynaui:search" style={{ fontSize: 20 }} />
+//             </button>
+//           </form>
+
+//           <div className="absolute top-[110%] left-0 z-10 bg-white w-full">
+//             {query && (
+//               <div className="shadow p-4 rounded flex items-center min-h-[200px] justify-center mt-2">
+//                 {searching ? (
+//                   <Loader2 className="animate-spin m-auto" />
+//                 ) : results.length === 0 ? (
+//                   <p>No result</p>
+//                 ) : (
+//                   <ul className="w-full space-y-2">
+//                     {results.slice(0, 5).map((item) => (
+//                       <li
+//                         key={item?._id || item?.name}
+//                         className="border-b p-2 cursor-pointer hover:bg-gray-100"
+//                         onClick={() => goToProduct(item.name)}
+//                       >
+//                         {item.name}
+//                       </li>
+//                     ))}
+//                   </ul>
+//                 )}
+//               </div>
+//             )}
+//           </div>
+//         </div>
+
+//         <div className="flex items-center gap-4 font-semibold">
+//           <Link href="/account" className="flex gap-2 items-center">
+//             <Icon icon="mdi:account" style={{ fontSize: 24 }} /> Account
+//           </Link>
+//           <Link href="/cart" className="flex gap-2 items-center">
+//             <CartButton /> Cart
+//           </Link>
+//         </div>
+//       </nav>
+
+//       {expandMobile && (
+//         <MobileMenu
+//           categories={initialCategories}
+//           toggle={() => setExpandMobile(false)}
+//         />
+//       )}
+//     </Wrapper>
+//   );
+// };
+
+// export default Navbar;
+
+// const CategoryDropdown = ({ categories = [] }) => {
+//   const [isOpen, setIsOpen] = useState(false);
+//   return (
+//     <div className="relative">
+//       <button
+//         className="flex items-center gap-1"
+//         onClick={() => setIsOpen(!isOpen)}
+//         aria-expanded={isOpen}
+//         aria-haspopup="true"
+//       >
+//         Categories <Icon icon="mdi:chevron-down" />
+//       </button>
+//       {isOpen && <DesktopCategoryDropdown categories={categories} />}
+//     </div>
+//   );
+// };
+
+// const MobileMenu = ({ categories = [], toggle }) => {
+//   return (
+//     <div className="fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto">
+//       <Wrapper>
+//         <div className="flex justify-between items-center py-4">
+//           <Logo />
+//           <button onClick={toggle} aria-label="Close menu">
+//             <Icon icon="uil:times" style={{ fontSize: 24 }} />
+//           </button>
+//         </div>
+//         <ul>
+//           {categories.map(({ name }, index) => (
+//             <li key={index}>
+//               <Link
+//                 href={toCategoryPath(name)}
+//                 className="flex items-center py-2 font-semibold text-lg"
+//                 onClick={toggle}
+//               >
+//                 {name}
+//               </Link>
+//             </li>
+//           ))}
+//           {APPEAL.map((name, index) => (
+//             <li key={index}>
+//               <Link
+//                 href={toAppealPath(name)}
+//                 className="py-2 hover:bg-gray-100 flex items-center font-semibold text-lg"
+//                 onClick={toggle}
+//               >
+//                 {name}
+//               </Link>
+//             </li>
+//           ))}
+//         </ul>
+//       </Wrapper>
+//     </div>
+//   );
+// };
+
+// const DesktopCategoryDropdown = ({ categories = [] }) => {
+//   return (
+//     <div className="absolute z-50 bg-white shadow-md rounded-md mt-2 left-[-15px] w-[9rem]">
+//       <ul>
+//         {categories.map(({ name }, index) => (
+//           <li key={index}>
+//             <Link
+//               href={toCategoryPath(name)}
+//               className="block px-4 py-2 hover:bg-gray-100"
+//             >
+//               {name}
+//             </Link>
+//           </li>
+//         ))}
+//         {APPEAL.map((name, index) => (
+//           <li key={index}>
+//             <Link
+//               href={toAppealPath(name)}
+//               className="block px-4 py-2 hover:bg-gray-100"
+//             >
+//               {name}
+//             </Link>
+//           </li>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// };
+
+// const CartButton = () => {
+//   const { data, status } = useCartQuery();
+
+//   const cartQuantity = data?.items?.length || 0;
+
+//   return (
+//     <div className="relative p-2">
+//       <Icon icon="mdi:cart" style={{ fontSize: 25 }} />
+
+//       {status === "success" && cartQuantity > 0 && (
+//         <p className="absolute grid w-4 h-4 text-xs font-bold leading-none text-white rounded-full bg-app-red place-items-center top-1 right-1">
+//           {cartQuantity}
+//         </p>
+//       )}
+//     </div>
+//   );
+// };
+
 "use client";
 
 import { Wrapper } from "./ui/Wrapper";
@@ -8,55 +311,132 @@ import { useRouter } from "next/navigation";
 import { useCartQuery } from "../hooks/query/useCart";
 import { Logo } from "./ui/Logo";
 import { Loader2 } from "lucide-react";
-import { useCartContext } from "../hooks/utils/useCart";
-import { toAppealPath, toCategoryPath, toProductPath } from "../utils/paths";
+import {
+  toAppealPath,
+  toCategoryPath,
+  toProductPath,
+} from "../utils/paths";
 
 const APPEAL = ["Men", "Women", "Unisex"];
+
 const API_BASE =
   process.env.NEXT_PUBLIC_BASE_URL ||
   "https://mkhasa-bfdb6fabd978.herokuapp.com/api/v1";
 
 const Navbar = ({ initialCategories = [] }) => {
   const router = useRouter();
+
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState([]);
   const [expandMobile, setExpandMobile] = useState(false);
 
-  const handleSearch = async (searchQuery) => {
-    if (!searchQuery) return;
-    try {
-      const res = await fetch(
-        `${API_BASE}/search?name=${encodeURIComponent(searchQuery)}&limit=8`
-      );
-      const data = await res.json();
-      setResults(data.products ?? []);
-    } catch {
+  // Debounced product search for mobile and desktop.
+  useEffect(() => {
+    const searchQuery = query.trim();
+
+    if (!searchQuery) {
       setResults([]);
-    } finally {
       setSearching(false);
+      return;
     }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    const timer = setTimeout(async () => {
+      setSearching(true);
+
+      try {
+        const res = await fetch(
+          `${API_BASE}/search?name=${encodeURIComponent(searchQuery)}&limit=8`,
+          { signal: controller.signal }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to search products");
+        }
+
+        const data = await res.json();
+
+        if (!cancelled) {
+          setResults(
+            Array.isArray(data.products) ? data.products : []
+          );
+        }
+      } catch (error) {
+        if (!cancelled && error.name !== "AbortError") {
+          console.error("Product search failed:", error);
+          setResults([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setSearching(false);
+        }
+      }
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
+
+  const trackSearch = (searchQuery) => {
+    if (
+      !searchQuery ||
+      typeof window === "undefined" ||
+      typeof window.fbq !== "function"
+    ) {
+      return;
+    }
+
+    window.fbq("track", "Search", {
+      search_string: searchQuery,
+    });
+
+    console.log("Meta Pixel Search event sent:", searchQuery);
   };
 
   const handleChangeInput = (text) => {
-    setSearching(true);
     setQuery(text);
-    const timer = setTimeout(() => handleSearch(text), 1000);
-    return () => clearTimeout(timer);
   };
 
   const goToProduct = (name) => {
     if (!name) return;
+
     router.push(toProductPath(name));
     setQuery("");
+    setResults([]);
+    setExpandMobile(false);
   };
+
+  // const onSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   const value = query.trim();
+
+  //   if (!value) return;
+
+  //   setResults([]);
+  //   setExpandMobile(false);
+  //   router.push(`/search?s=${encodeURIComponent(value)}`);
+  // };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const value = e.target?.search?.value;
+
+    const value = query.trim();
+
     if (!value) return;
-    setQuery("");
-    router.push(`/search?s=${value}`);
+
+    trackSearch(value);
+
+    setResults([]);
+    setExpandMobile(false);
+
+    router.push(`/search?s=${encodeURIComponent(value)}`);
   };
 
   return (
@@ -65,54 +445,79 @@ const Navbar = ({ initialCategories = [] }) => {
       <nav className="lg:hidden" aria-label="Mobile navigation">
         <div className="flex items-center justify-between mb-4">
           <button
+            type="button"
             onClick={() => setExpandMobile(!expandMobile)}
             aria-label="Open menu"
+            aria-expanded={expandMobile}
           >
-            <Icon icon="charm:menu-hamburger" style={{ fontSize: 24 }} />
+            <Icon
+              icon="charm:menu-hamburger"
+              style={{ fontSize: 24 }}
+            />
           </button>
+
           <Logo />
+
           <div className="flex items-center gap-4">
             <Link href="/cart" className="flex gap-2 items-center">
-              <CartButton /> Cart
+              <CartButton />
+              Cart
             </Link>
+
             <Link href="/account" aria-label="Account">
               <Icon icon="mdi:account" style={{ fontSize: 24 }} />
             </Link>
           </div>
         </div>
+
         <form onSubmit={onSubmit} className="relative">
           <input
-            id="search"
+            id="mobile-search"
             name="search"
             type="search"
+            value={query}
             placeholder="Search For Item"
-            className="w-full px-4 py-2 rounded-full pr-8 outline-none bg-app-ash"
+            autoComplete="off"
+            className="w-full px-4 py-2 rounded-full pr-10 outline-none bg-app-ash"
             onChange={(e) => handleChangeInput(e.target.value)}
           />
+
           <button
             aria-label="Search for product"
             className="absolute right-3 top-1/2 -translate-y-1/2"
             type="submit"
           >
-            <Icon icon="mynaui:search" style={{ fontSize: 20 }} />
+            <Icon
+              icon="mynaui:search"
+              style={{ fontSize: 20 }}
+            />
           </button>
         </form>
 
-        {query && (
-          <div className="border rounded flex min-h-[200px] justify-center">
+        {query.trim() && (
+          <div className="border rounded mt-2 min-h-[60px] max-h-72 overflow-y-auto bg-white shadow-sm">
             {searching ? (
-              <Loader2 className="animate-spin m-auto" />
+              <div className="flex justify-center items-center min-h-[60px]">
+                <Loader2 className="animate-spin" />
+              </div>
             ) : results.length === 0 ? (
-              <p className="flex items-center">No result</p>
+              <p className="p-4 text-sm text-center">
+                No products found.
+              </p>
             ) : (
-              <ul className="w-full h-full">
-                {results.slice(0, 8).map((item, index) => (
+              <ul className="w-full">
+                {results.map((item) => (
                   <li
-                    key={index}
-                    className="p-2 text-xs cursor-pointer hover:bg-gray-100"
-                    onClick={() => goToProduct(item.name)}
+                    key={item?._id || item?.name}
+                    className="border-b last:border-b-0"
                   >
-                    {item.name}
+                    <button
+                      type="button"
+                      className="w-full p-3 text-left text-sm hover:bg-gray-100"
+                      onClick={() => goToProduct(item.name)}
+                    >
+                      {item.name}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -133,59 +538,76 @@ const Navbar = ({ initialCategories = [] }) => {
         </div>
 
         <div className="flex-grow max-w-md relative">
-          <form onSubmit={onSubmit} className="flex-grow max-w-md relative">
+          <form onSubmit={onSubmit} className="w-full relative">
             <input
-              id="search"
+              id="desktop-search"
               name="search"
               type="search"
+              value={query}
               placeholder="Search product"
-              className="w-full px-6 py-2 rounded-full pr-8 outline-none bg-app-ash"
+              autoComplete="off"
+              className="w-full px-6 py-2 rounded-full pr-10 outline-none bg-app-ash"
               onChange={(e) => handleChangeInput(e.target.value)}
             />
+
             <button
               aria-label="Search for product"
               className="absolute right-3 top-1/2 -translate-y-1/2"
               type="submit"
             >
-              <Icon icon="mynaui:search" style={{ fontSize: 20 }} />
+              <Icon
+                icon="mynaui:search"
+                style={{ fontSize: 20 }}
+              />
             </button>
           </form>
 
-          <div className="absolute top-[110%] left-0 z-10 bg-white w-full">
-            {query && (
-              <div className="shadow p-4 rounded flex items-center min-h-[200px] justify-center mt-2">
-                {searching ? (
-                  <Loader2 className="animate-spin m-auto" />
-                ) : results.length === 0 ? (
-                  <p>No result</p>
-                ) : (
-                  <ul className="w-full space-y-2">
-                    {results.slice(0, 5).map((item) => (
-                      <li
-                        key={item?._id || item?.name}
-                        className="border-b p-2 cursor-pointer hover:bg-gray-100"
+          {query.trim() && (
+            <div className="absolute top-[110%] left-0 z-50 bg-white w-full shadow-md rounded-md max-h-80 overflow-y-auto">
+              {searching ? (
+                <div className="flex justify-center items-center min-h-[80px]">
+                  <Loader2 className="animate-spin" />
+                </div>
+              ) : results.length === 0 ? (
+                <p className="p-4 text-sm text-center">
+                  No products found.
+                </p>
+              ) : (
+                <ul className="w-full">
+                  {results.map((item) => (
+                    <li
+                      key={item?._id || item?.name}
+                      className="border-b last:border-b-0"
+                    >
+                      <button
+                        type="button"
+                        className="w-full text-left p-3 hover:bg-gray-100"
                         onClick={() => goToProduct(item.name)}
                       >
                         {item.name}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-          </div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-4 font-semibold">
           <Link href="/account" className="flex gap-2 items-center">
-            <Icon icon="mdi:account" style={{ fontSize: 24 }} /> Account
+            <Icon icon="mdi:account" style={{ fontSize: 24 }} />
+            Account
           </Link>
+
           <Link href="/cart" className="flex gap-2 items-center">
-            <CartButton /> Cart
+            <CartButton />
+            Cart
           </Link>
         </div>
       </nav>
 
+      {/* Mobile Menu */}
       {expandMobile && (
         <MobileMenu
           categories={initialCategories}
@@ -200,17 +622,23 @@ export default Navbar;
 
 const CategoryDropdown = ({ categories = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="relative">
       <button
+        type="button"
         className="flex items-center gap-1"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        Categories <Icon icon="mdi:chevron-down" />
+        Categories
+        <Icon icon="mdi:chevron-down" />
       </button>
-      {isOpen && <DesktopCategoryDropdown categories={categories} />}
+
+      {isOpen && (
+        <DesktopCategoryDropdown categories={categories} />
+      )}
     </div>
   );
 };
@@ -221,13 +649,19 @@ const MobileMenu = ({ categories = [], toggle }) => {
       <Wrapper>
         <div className="flex justify-between items-center py-4">
           <Logo />
-          <button onClick={toggle} aria-label="Close menu">
+
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label="Close menu"
+          >
             <Icon icon="uil:times" style={{ fontSize: 24 }} />
           </button>
         </div>
+
         <ul>
           {categories.map(({ name }, index) => (
-            <li key={index}>
+            <li key={name || index}>
               <Link
                 href={toCategoryPath(name)}
                 className="flex items-center py-2 font-semibold text-lg"
@@ -237,8 +671,9 @@ const MobileMenu = ({ categories = [], toggle }) => {
               </Link>
             </li>
           ))}
-          {APPEAL.map((name, index) => (
-            <li key={index}>
+
+          {APPEAL.map((name) => (
+            <li key={name}>
               <Link
                 href={toAppealPath(name)}
                 className="py-2 hover:bg-gray-100 flex items-center font-semibold text-lg"
@@ -259,7 +694,7 @@ const DesktopCategoryDropdown = ({ categories = [] }) => {
     <div className="absolute z-50 bg-white shadow-md rounded-md mt-2 left-[-15px] w-[9rem]">
       <ul>
         {categories.map(({ name }, index) => (
-          <li key={index}>
+          <li key={name || index}>
             <Link
               href={toCategoryPath(name)}
               className="block px-4 py-2 hover:bg-gray-100"
@@ -268,8 +703,9 @@ const DesktopCategoryDropdown = ({ categories = [] }) => {
             </Link>
           </li>
         ))}
-        {APPEAL.map((name, index) => (
-          <li key={index}>
+
+        {APPEAL.map((name) => (
+          <li key={name}>
             <Link
               href={toAppealPath(name)}
               className="block px-4 py-2 hover:bg-gray-100"
@@ -300,3 +736,4 @@ const CartButton = () => {
     </div>
   );
 };
+
