@@ -215,7 +215,16 @@ export const DescriptionContent = ({ product, accordion }) => {
           {/* Render formatted HTML description — falls back gracefully if plain text */}
           {hasContent(product?.description) && (
             <div
-              className="py-1 prose prose-sm max-w-none text-gray-800"
+              className="
+                py-1 max-w-none text-gray-800
+                prose prose-sm
+                prose-headings:font-semibold
+                prose-h2:text-xl prose-h3:text-lg
+                prose-p:my-3
+                prose-ul:my-3 prose-ol:my-3
+                prose-li:my-1
+                prose-strong:font-semibold
+              "
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           )}
