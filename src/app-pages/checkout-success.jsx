@@ -1,3 +1,326 @@
+// "use client";
+
+// import { useRouter } from "next/navigation";
+// import Link from "next/link";
+// import { useSearchParams } from "next/navigation";
+// import { Wrapper } from "../components/ui/Wrapper";
+// import { Success } from "../components/Success";
+// import { useEffect, useState, useRef } from "react";
+// import axios from "../utils/axios";
+// import { Icon } from "@iconify/react/dist/iconify.js";
+// import { Error } from "../components/Error";
+// import { BestSellers } from "../components/BestSellers";
+// import { LatestProducts } from "../components/LatestProducts";
+// import toast from "react-hot-toast";
+
+// export const Component = () => {
+//   const searchParams = useSearchParams();
+//   const provider = searchParams.get("provider");
+//   const [verification, setVerification] = useState("pending");
+//   const router = useRouter();
+
+//   // --- Parameter extraction per provider ---
+
+//   const tx_ref =
+//     provider === "paystack"
+//       ? searchParams.get("txref")
+//       : provider === "flutterwave"
+//         ? searchParams.get("tx_ref")
+//         : "";
+
+//   const transaction_id =
+//     provider === "paystack"
+//       ? searchParams.get("reference")
+//       : provider === "flutterwave"
+//         ? searchParams.get("transaction_id")
+//         : provider === "opay"
+//           ? null  // OPay doesn't use transaction_id
+//           : searchParams.get("paymentReference"); // monnify
+
+//   // OPay sends back ?provider=opay&reference=<orderCode>
+//   const opayReference = provider === "opay" ? searchParams.get("reference") : null;
+
+//   const status = searchParams.get("status");
+
+// // --- Meta Pixel Purchase tracking ---
+// const purchaseTrackedRef = useRef(false);
+
+// useEffect(() => {
+//   if (verification !== "successful" || purchaseTrackedRef.current) return;
+
+//   let itemsToBuy;
+
+//   try {
+//     itemsToBuy = JSON.parse(sessionStorage.getItem("items_to_buy"));
+//   } catch (error) {
+//     console.error("Could not parse items_to_buy:", error);
+//     return;
+//   }
+
+//   if (!itemsToBuy || typeof window.fbq !== "function") {
+//     console.warn("Purchase not tracked: order data or Meta Pixel is unavailable.");
+//     return;
+//   }
+
+//   const transactionId = String(
+//     transaction_id || tx_ref || opayReference || itemsToBuy._id || itemsToBuy.id || ""
+//   );
+
+//   // Use a transaction-specific key to avoid duplicate Purchase events.
+//   const storageKey = transactionId
+//     ? `meta_purchase_tracked_${transactionId}`
+//     : null;
+
+//   if (storageKey && sessionStorage.getItem(storageKey)) {
+//     purchaseTrackedRef.current = true;
+//     return;
+//   }
+
+//   const orderItems = Array.isArray(itemsToBuy.items)
+//     ? itemsToBuy.items
+//     : [];
+
+//   const contents = orderItems
+//     .map((item) => {
+//       const product = item.productId || item.product || item.item || {};
+//       const rawId =
+//         typeof product === "object"
+//           ? product._id || product.id
+//           : product;
+
+//       const quantity = Number(item.quantity ?? item.qty ?? 1);
+//       const price = Number(
+//         item.price ?? item.unitPrice ?? product.price ?? 0
+//       );
+
+//       if (
+//         !rawId ||
+//         !Number.isFinite(quantity) ||
+//         quantity <= 0 ||
+//         !Number.isFinite(price) ||
+//         price < 0
+//       ) {
+//         return null;
+//       }
+
+//       return {
+//         id: String(rawId),
+//         quantity,
+//         item_price: price,
+//       };
+//     })
+//     .filter(Boolean);
+
+//   // Prefer the actual total if your stored order object has one.
+//   // Otherwise, use subTotal as a fallback.
+//   const value = Number(
+//     itemsToBuy.totalAmount ??
+//     itemsToBuy.total ??
+//     itemsToBuy.grandTotal ??
+//     itemsToBuy.subTotal
+//   );
+
+//   if (!Number.isFinite(value) || value < 0) {
+//     console.error("Purchase not tracked: invalid order total.", itemsToBuy);
+//     return;
+//   }
+
+//   const payload = {
+//     content_type: "product",
+//     content_ids: contents.map((item) => item.id),
+//     contents,
+//     num_items: contents.reduce((sum, item) => sum + item.quantity, 0),
+//     value: Number(value.toFixed(2)),
+//     currency: "NGN",
+//   };
+
+//   window.fbq("track", "Purchase", payload);
+
+//   purchaseTrackedRef.current = true;
+
+//   if (storageKey) {
+//     sessionStorage.setItem(storageKey, "true");
+//   }
+
+//   console.log("Meta Pixel Purchase event sent:", {
+//     transactionId,
+//     ...payload,
+//   });
+// }, [verification, transaction_id, tx_ref, opayReference]);
+
+
+
+//   // --- Google Ads conversion tracking ---
+//   useEffect(() => {
+//     if (typeof window !== "undefined" && verification === "successful") {
+//       const transactionId = transaction_id || tx_ref || opayReference || "";
+//       const value = (() => {
+//         try {
+//           return Number(JSON.parse(sessionStorage.getItem("items_to_buy"))?.subTotal || 1) || 1;
+//         } catch {
+//           return 1;
+//         }
+//       })();
+
+//       window.gtag &&
+//         window.gtag("event", "conversion", {
+//           send_to: "AW-17033587521/JtG-CP3hgOAaEMHWn7o_",
+//         });
+//       window.gtag &&
+//         window.gtag("event", "conversion", {
+//           send_to: "AW-17261904158/o7h5COCn16obEJ6Cj6dA",
+//           value,
+//           currency: "NGN",
+//           transaction_id: transactionId,
+//         });
+
+//       console.log("Google Ads conversions sent:", {
+//         value,
+//         currency: "NGN",
+//         transactionId,
+//       });
+//     }
+//   }, [verification]);
+
+//   // --- Verification logic ---
+//   useEffect(() => {
+//     const MAX_RETRIES = 5;
+
+//     const attemptVerification = async (retryCount = 1) => {
+//       try {
+//         let res;
+
+//         if (provider === "opay") {
+//           // OPay
+//           if (!opayReference) {
+//             console.error("OPay reference missing from callback URL");
+//             setVerification("failed");
+//             return;
+//           }
+//           res = await axios.post(`/verify/opay/payment/${opayReference}`);
+
+//         } else if (!provider) {
+//           // No provider = Monnify
+//           res = await axios.post(`/verify/monnify/payment/${transaction_id}`);
+
+//         } else if (provider === "flutterwave" && status === "successful") {
+//           res = await axios.post(`/verify/payment/${tx_ref}/${transaction_id}`);
+
+//         } else {
+//           // Paystack
+//           res = await axios.post(`/verify/paystack/payment/${transaction_id}`);
+//         }
+
+//         if (res.status === 200 || res.data) {
+//           setVerification("successful");
+//           toast.success("Payment verified successfully!");
+
+//           // Twitter/X pixel — Paystack only
+//           if (
+//             provider === "paystack" &&
+//             typeof window !== "undefined" &&
+//             window.twq
+//           ) {
+//             const itemsToBuy = (() => {
+//               try {
+//                 return JSON.parse(sessionStorage.getItem("items_to_buy"));
+//               } catch {
+//                 return null;
+//               }
+//             })();
+
+//             if (!itemsToBuy) return;
+
+//             const configuredContent = {
+//               content_type: "product",
+//               content_id: itemsToBuy._id || itemsToBuy.id || "",
+//               subTotal: `₦${itemsToBuy.subTotal.toLocaleString()}`,
+//               deliveryFee: "₦2,500",
+//               value:
+//                 "₦" + (Number(itemsToBuy.subTotal) + 100).toLocaleString(),
+//               currency: "NGN",
+//               contents: itemsToBuy.items.map((item) => ({
+//                 content_name: item.name || item.title || "Product",
+//                 content_type: "product",
+//                 content_id: item.productId._id,
+//                 content_price: item.price,
+//                 num_items: item.quantity,
+//               })),
+//             };
+
+//             window.twq("event", "tw-pioaa-pioad", configuredContent);
+//           }
+//         } else {
+//           throw new Error("Verification unsuccessful");
+//         }
+//       } catch (error) {
+//         if (retryCount < MAX_RETRIES) {
+//           console.log("Retrying verification...");
+//           // setTimeout(() => attemptVerification(retryCount + 1), 1500);
+//         } else {
+//           setVerification("failed");
+//         }
+//       }
+//     };
+
+//     attemptVerification();
+//   }, [provider, transaction_id, tx_ref, status, opayReference]);
+
+//   useEffect(() => {
+//     const isOkay =
+//     (provider === "opay" && opayReference) ||  // OPay
+//     (!provider && transaction_id) ||            // Monnify
+//     (provider === "flutterwave" && status && tx_ref) || // Flutterwave
+//     (provider === "paystack" && transaction_id); // Paystack
+
+//     if (!isOkay) {
+//         router.push("/");
+//     }
+//   }, [provider, transaction_id, tx_ref, status, opayReference, router]);
+
+//   return (
+//     <>
+//       <Wrapper className="py-8">
+//         {verification === "pending" ? (
+//           <>Your payment is being processed...</>
+//         ) : verification === "successful" ? (
+//           <Success>
+//             <h2 className="mt-6 text-xl font-bold">Success</h2>
+//             <p className="mx-auto max-w-lg text-center">
+//               You have successfully placed your order. You can track your order
+//               status{" "}
+//               <Link href="/account/order-history" className="text-app-red px-2">
+//                 here
+//               </Link>
+//               . Below are related products that go with what you just purchased.
+//             </p>
+//           </Success>
+//         ) : verification === "failed" ? (
+//           <Error>
+//             <h2 className="mt-6 text-xl font-bold">Failed</h2>
+//             <p className="mx-auto max-w-lg text-center">
+//               Sorry, your transaction failed. Please check that you have not
+//               been debited and contact your bank. Click{" "}
+//               <Link href="/" className="text-app-red px-2">
+//                 here
+//               </Link>{" "}
+//               to return to home.
+//             </p>
+//           </Error>
+//         ) : (
+//           <Icon
+//             icon="svg-spinners:6-dots-rotate"
+//             style={{ fontSize: 100, display: "grid", placeItems: "center" }}
+//             className="text-center"
+//           />
+//         )}
+
+//         <BestSellers horizontalOnSmallScreens />
+//         <LatestProducts horizontalOnSmallScreens />
+//       </Wrapper>
+//     </>
+//   );
+// };
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -8,10 +331,13 @@ import { Success } from "../components/Success";
 import { useEffect, useState, useRef } from "react";
 import axios from "../utils/axios";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Error } from "../components/Error";
+import { Error as ErrorMessage } from "../components/Error";
 import { BestSellers } from "../components/BestSellers";
 import { LatestProducts } from "../components/LatestProducts";
 import toast from "react-hot-toast";
+
+const MAX_RETRIES = 5;
+const RETRY_DELAY_MS = 3000;
 
 export const Component = () => {
   const searchParams = useSearchParams();
@@ -34,7 +360,7 @@ export const Component = () => {
       : provider === "flutterwave"
         ? searchParams.get("transaction_id")
         : provider === "opay"
-          ? null  // OPay doesn't use transaction_id
+          ? null // OPay doesn't use transaction_id
           : searchParams.get("paymentReference"); // monnify
 
   // OPay sends back ?provider=opay&reference=<orderCode>
@@ -42,113 +368,105 @@ export const Component = () => {
 
   const status = searchParams.get("status");
 
-// --- Meta Pixel Purchase tracking ---
-const purchaseTrackedRef = useRef(false);
+  // --- Meta Pixel Purchase tracking ---
+  const purchaseTrackedRef = useRef(false);
 
-useEffect(() => {
-  if (verification !== "successful" || purchaseTrackedRef.current) return;
+  useEffect(() => {
+    if (verification !== "successful" || purchaseTrackedRef.current) return;
 
-  let itemsToBuy;
+    let itemsToBuy;
 
-  try {
-    itemsToBuy = JSON.parse(sessionStorage.getItem("items_to_buy"));
-  } catch (error) {
-    console.error("Could not parse items_to_buy:", error);
-    return;
-  }
+    try {
+      itemsToBuy = JSON.parse(sessionStorage.getItem("items_to_buy"));
+    } catch (error) {
+      console.error("Could not parse items_to_buy:", error);
+      return;
+    }
 
-  if (!itemsToBuy || typeof window.fbq !== "function") {
-    console.warn("Purchase not tracked: order data or Meta Pixel is unavailable.");
-    return;
-  }
+    if (!itemsToBuy || typeof window.fbq !== "function") {
+      console.warn("Purchase not tracked: order data or Meta Pixel is unavailable.");
+      return;
+    }
 
-  const transactionId = String(
-    transaction_id || tx_ref || opayReference || itemsToBuy._id || itemsToBuy.id || ""
-  );
+    const transactionId = String(
+      transaction_id || tx_ref || opayReference || itemsToBuy._id || itemsToBuy.id || ""
+    );
 
-  // Use a transaction-specific key to avoid duplicate Purchase events.
-  const storageKey = transactionId
-    ? `meta_purchase_tracked_${transactionId}`
-    : null;
+    // Use a transaction-specific key to avoid duplicate Purchase events.
+    const storageKey = transactionId
+      ? `meta_purchase_tracked_${transactionId}`
+      : null;
 
-  if (storageKey && sessionStorage.getItem(storageKey)) {
+    if (storageKey && sessionStorage.getItem(storageKey)) {
+      purchaseTrackedRef.current = true;
+      return;
+    }
+
+    const orderItems = Array.isArray(itemsToBuy.items) ? itemsToBuy.items : [];
+
+    const contents = orderItems
+      .map((item) => {
+        const product = item.productId || item.product || item.item || {};
+        const rawId =
+          typeof product === "object" ? product._id || product.id : product;
+
+        const quantity = Number(item.quantity ?? item.qty ?? 1);
+        const price = Number(item.price ?? item.unitPrice ?? product.price ?? 0);
+
+        if (
+          !rawId ||
+          !Number.isFinite(quantity) ||
+          quantity <= 0 ||
+          !Number.isFinite(price) ||
+          price < 0
+        ) {
+          return null;
+        }
+
+        return {
+          id: String(rawId),
+          quantity,
+          item_price: price,
+        };
+      })
+      .filter(Boolean);
+
+    // Prefer the actual total if your stored order object has one.
+    // Otherwise, use subTotal as a fallback.
+    const value = Number(
+      itemsToBuy.totalAmount ??
+        itemsToBuy.total ??
+        itemsToBuy.grandTotal ??
+        itemsToBuy.subTotal
+    );
+
+    if (!Number.isFinite(value) || value < 0) {
+      console.error("Purchase not tracked: invalid order total.", itemsToBuy);
+      return;
+    }
+
+    const payload = {
+      content_type: "product",
+      content_ids: contents.map((item) => item.id),
+      contents,
+      num_items: contents.reduce((sum, item) => sum + item.quantity, 0),
+      value: Number(value.toFixed(2)),
+      currency: "NGN",
+    };
+
+    window.fbq("track", "Purchase", payload);
+
     purchaseTrackedRef.current = true;
-    return;
-  }
 
-  const orderItems = Array.isArray(itemsToBuy.items)
-    ? itemsToBuy.items
-    : [];
+    if (storageKey) {
+      sessionStorage.setItem(storageKey, "true");
+    }
 
-  const contents = orderItems
-    .map((item) => {
-      const product = item.productId || item.product || item.item || {};
-      const rawId =
-        typeof product === "object"
-          ? product._id || product.id
-          : product;
-
-      const quantity = Number(item.quantity ?? item.qty ?? 1);
-      const price = Number(
-        item.price ?? item.unitPrice ?? product.price ?? 0
-      );
-
-      if (
-        !rawId ||
-        !Number.isFinite(quantity) ||
-        quantity <= 0 ||
-        !Number.isFinite(price) ||
-        price < 0
-      ) {
-        return null;
-      }
-
-      return {
-        id: String(rawId),
-        quantity,
-        item_price: price,
-      };
-    })
-    .filter(Boolean);
-
-  // Prefer the actual total if your stored order object has one.
-  // Otherwise, use subTotal as a fallback.
-  const value = Number(
-    itemsToBuy.totalAmount ??
-    itemsToBuy.total ??
-    itemsToBuy.grandTotal ??
-    itemsToBuy.subTotal
-  );
-
-  if (!Number.isFinite(value) || value < 0) {
-    console.error("Purchase not tracked: invalid order total.", itemsToBuy);
-    return;
-  }
-
-  const payload = {
-    content_type: "product",
-    content_ids: contents.map((item) => item.id),
-    contents,
-    num_items: contents.reduce((sum, item) => sum + item.quantity, 0),
-    value: Number(value.toFixed(2)),
-    currency: "NGN",
-  };
-
-  window.fbq("track", "Purchase", payload);
-
-  purchaseTrackedRef.current = true;
-
-  if (storageKey) {
-    sessionStorage.setItem(storageKey, "true");
-  }
-
-  console.log("Meta Pixel Purchase event sent:", {
-    transactionId,
-    ...payload,
-  });
-}, [verification, transaction_id, tx_ref, opayReference]);
-
-
+    console.log("Meta Pixel Purchase event sent:", {
+      transactionId,
+      ...payload,
+    });
+  }, [verification, transaction_id, tx_ref, opayReference]);
 
   // --- Google Ads conversion tracking ---
   useEffect(() => {
@@ -182,11 +500,77 @@ useEffect(() => {
     }
   }, [verification]);
 
-  // --- Verification logic ---
+  // --- Verification logic (with retries) ---
   useEffect(() => {
-    const MAX_RETRIES = 3;
+    let cancelled = false;
+    let timeoutId;
+
+    // const sendTwitterPixel = () => {
+    //   if (provider !== "paystack" || typeof window === "undefined" || !window.twq) return;
+
+    //   try {
+    //     const itemsToBuy = JSON.parse(sessionStorage.getItem("items_to_buy"));
+    //     if (!itemsToBuy) return;
+
+    //     const configuredContent = {
+    //       content_type: "product",
+    //       content_id: itemsToBuy._id || itemsToBuy.id || "",
+    //       subTotal: `₦${itemsToBuy.subTotal.toLocaleString()}`,
+    //       deliveryFee: "₦2,500",
+    //       value: "₦" + (Number(itemsToBuy.subTotal) + 100).toLocaleString(),
+    //       currency: "NGN",
+    //       contents: itemsToBuy.items.map((item) => ({
+    //         content_name: item.name || item.title || "Product",
+    //         content_type: "product",
+    //         content_id: item.productId._id,
+    //         content_price: item.price,
+    //         num_items: item.quantity,
+    //       })),
+    //     };
+
+    //     window.twq("event", "tw-pioaa-pioad", configuredContent);
+    //   } catch (err) {
+    //     // Tracking must never affect payment verification
+    //     console.error("Twitter pixel error:", err);
+    //   }
+    // };
+
+    const sendTwitterPixel = () => {
+      if (typeof window === "undefined" || !window.twq) return;
+
+      try {
+        const itemsToBuy = JSON.parse(sessionStorage.getItem("items_to_buy"));
+        if (!itemsToBuy) return;
+
+        const subTotal = Number(itemsToBuy.subTotal) || 0;
+        const deliveryFee = Number(itemsToBuy.deliveryFee) || 0;
+        const total = Number(
+          itemsToBuy.totalAmount ?? itemsToBuy.total ?? itemsToBuy.grandTotal ?? subTotal + deliveryFee
+        );
+
+        window.twq("event", "tw-pioaa-pioad", {
+          content_type: "product",
+          content_id: itemsToBuy._id || itemsToBuy.id || "",
+          subTotal,
+          deliveryFee,
+          value: total,
+          currency: "NGN",
+          contents: (itemsToBuy.items || []).map((item) => ({
+            content_name: item.name || item.title || "Product",
+            content_type: "product",
+            content_id: item.productId?._id || item.productId,
+            content_price: item.price,
+            num_items: item.quantity,
+          })),
+        });
+      } catch (err) {
+        console.error("Twitter pixel error:", err);
+      }
+    };
 
     const attemptVerification = async (retryCount = 1) => {
+      if (cancelled) return;
+
       try {
         let res;
 
@@ -198,65 +582,31 @@ useEffect(() => {
             return;
           }
           res = await axios.post(`/verify/opay/payment/${opayReference}`);
-
         } else if (!provider) {
           // No provider = Monnify
           res = await axios.post(`/verify/monnify/payment/${transaction_id}`);
-
         } else if (provider === "flutterwave" && status === "successful") {
           res = await axios.post(`/verify/payment/${tx_ref}/${transaction_id}`);
-
         } else {
           // Paystack
           res = await axios.post(`/verify/paystack/payment/${transaction_id}`);
         }
 
+        if (cancelled) return;
+
         if (res.status === 200 || res.data) {
           setVerification("successful");
           toast.success("Payment verified successfully!");
-
-          // Twitter/X pixel — Paystack only
-          if (
-            provider === "paystack" &&
-            typeof window !== "undefined" &&
-            window.twq
-          ) {
-            const itemsToBuy = (() => {
-              try {
-                return JSON.parse(sessionStorage.getItem("items_to_buy"));
-              } catch {
-                return null;
-              }
-            })();
-
-            if (!itemsToBuy) return;
-
-            const configuredContent = {
-              content_type: "product",
-              content_id: itemsToBuy._id || itemsToBuy.id || "",
-              subTotal: `₦${itemsToBuy.subTotal.toLocaleString()}`,
-              deliveryFee: "₦2,500",
-              value:
-                "₦" + (Number(itemsToBuy.subTotal) + 100).toLocaleString(),
-              currency: "NGN",
-              contents: itemsToBuy.items.map((item) => ({
-                content_name: item.name || item.title || "Product",
-                content_type: "product",
-                content_id: item.productId._id,
-                content_price: item.price,
-                num_items: item.quantity,
-              })),
-            };
-
-            window.twq("event", "tw-pioaa-pioad", configuredContent);
-          }
+          sendTwitterPixel();
         } else {
           throw new Error("Verification unsuccessful");
         }
       } catch (error) {
+        if (cancelled) return;
+
         if (retryCount < MAX_RETRIES) {
-          console.log("Retrying verification...");
-          // setTimeout(() => attemptVerification(retryCount + 1), 1500);
+          console.log(`Retrying verification (${retryCount}/${MAX_RETRIES})...`);
+          timeoutId = setTimeout(() => attemptVerification(retryCount + 1), RETRY_DELAY_MS);
         } else {
           setVerification("failed");
         }
@@ -264,17 +614,23 @@ useEffect(() => {
     };
 
     attemptVerification();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [provider, transaction_id, tx_ref, status, opayReference]);
 
+  // --- Redirect home if the callback URL is missing required params ---
   useEffect(() => {
     const isOkay =
-    (provider === "opay" && opayReference) ||  // OPay
-    (!provider && transaction_id) ||            // Monnify
-    (provider === "flutterwave" && status && tx_ref) || // Flutterwave
-    (provider === "paystack" && transaction_id); // Paystack
+      (provider === "opay" && opayReference) || // OPay
+      (!provider && transaction_id) || // Monnify
+      (provider === "flutterwave" && status && tx_ref) || // Flutterwave
+      (provider === "paystack" && transaction_id); // Paystack
 
     if (!isOkay) {
-        router.push("/");
+      router.push("/");
     }
   }, [provider, transaction_id, tx_ref, status, opayReference, router]);
 
@@ -296,7 +652,7 @@ useEffect(() => {
             </p>
           </Success>
         ) : verification === "failed" ? (
-          <Error>
+          <ErrorMessage>
             <h2 className="mt-6 text-xl font-bold">Failed</h2>
             <p className="mx-auto max-w-lg text-center">
               Sorry, your transaction failed. Please check that you have not
@@ -306,7 +662,7 @@ useEffect(() => {
               </Link>{" "}
               to return to home.
             </p>
-          </Error>
+          </ErrorMessage>
         ) : (
           <Icon
             icon="svg-spinners:6-dots-rotate"
