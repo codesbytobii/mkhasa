@@ -5,6 +5,7 @@ import { Product } from "./ProductCard";
 import { useLoaderData } from "@/legacy/router-shim";
 import { Icon } from "@iconify/react";
 import { useRef, useEffect } from "react";
+import Link from "next/link";
 import useLongPress from "../hooks/utils/useLongPress";
 
 export const LatestProducts = ({ horizontalOnSmallScreens = true }) => {
@@ -21,6 +22,7 @@ export const LatestProducts = ({ horizontalOnSmallScreens = true }) => {
     <section className="py-8   ">
       <div className="flex items-center justify-between">
         <SectionHeader header="New In" />
+        <Link href={'/latest'}>See More</Link>
         <div className="hidden gap-4">
           <button
             {...getHandlers("backward")}

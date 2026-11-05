@@ -25,14 +25,15 @@ export const Component = () => {
           signal: controller.signal,
         });
         const list = Array.isArray(res.data) ? res.data : res.data?.products;
-        console.log(list);
         setProducts(list || []);
+        setError(null);
       } catch (err) {
-        if (axios.isCancel(err)) return;
+        if (axios.isCancel(err) || controller.signal.aborted) return;
         console.error("Error fetching latest products:", err);
         setError("An error has occurred");
       } finally {
-        setIsLoading(false);
+        // Only stop loading if this request wasn't aborted
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     };
 
