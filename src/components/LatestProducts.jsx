@@ -22,7 +22,9 @@ export const LatestProducts = ({ horizontalOnSmallScreens = true }) => {
     <section className="py-8   ">
       <div className="flex items-center justify-between">
         <SectionHeader header="New In" />
-        <Link href="/latest" className="text-sm">See More</Link>
+        <Link href="/latest" className="text-sm underline">
+          See More
+        </Link>
         <div className="hidden gap-4">
           <button
             {...getHandlers("backward")}
