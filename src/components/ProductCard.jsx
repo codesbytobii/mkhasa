@@ -334,7 +334,12 @@ export const Product = ({
   };
 
   return (
-    <div className={cn("flex h-full flex-col bg-white", className)}>
+    <div
+      className={cn(
+        "flex h-full min-w-0 flex-col bg-white px-1.5 sm:px-0",
+        className
+      )}
+    >
       {/* Image */}
       <div className="relative aspect-square w-full overflow-hidden rounded-sm bg-[#F5F5F5]">
         <Link href={productPath} className="absolute inset-0 block">
@@ -380,7 +385,7 @@ export const Product = ({
                 <>
                   <span
                     className="text-xs line-through decoration-1"
-                    style={{textDecorationColor: STRIKE_COLOR }}
+                    style={{ textDecorationColor: STRIKE_COLOR }}
                   >
                     ₦{format(original)}
                   </span>
@@ -404,57 +409,57 @@ export const Product = ({
         </Link>
 
         {/* Actions */}
-      <div className="mt-auto pt-3">
-        {available === false ? (
-          <Button
-            className="btn w-full"
-            onClick={() => toggleNotificationDialog(id)}
-          >
-            Notify Me
-          </Button>
-        ) : (
-          <div className="flex w-full min-w-0 items-stretch gap-1.5 sm:gap-2">
-            {/* Cart button: takes the remaining space and can shrink to nothing */}
-            <button
-              type="button"
-              aria-label={`Add ${title} to cart`}
-              onClick={handleAddToCart}
-              className="flex h-10 min-w-0 flex-1 basis-0 items-center justify-center bg-black text-white transition-colors duration-200 hover:bg-[#333333] lg:h-12"
+        <div className="mt-auto pt-3">
+          {available === false ? (
+            <Button
+              className="btn w-full"
+              onClick={() => toggleNotificationDialog(id)}
             >
-              <ShoppingCart className="h-4 w-4 shrink-0 lg:h-5 lg:w-5" />
-            </button>
+              Notify Me
+            </Button>
+          ) : (
+            <div className="flex w-full min-w-0 items-stretch gap-1.5 sm:gap-2">
+              {/* Cart button: takes the remaining space and can shrink */}
+              <button
+                type="button"
+                aria-label={`Add ${title} to cart`}
+                onClick={handleAddToCart}
+                className="flex h-10 min-w-0 flex-1 basis-0 items-center justify-center bg-black text-white transition-colors duration-200 hover:bg-[#333333] lg:h-12"
+              >
+                <ShoppingCart className="h-4 w-4 shrink-0 lg:h-5 lg:w-5" />
+              </button>
 
-            {/* Stepper: fixed compact width, never shrinks or overflows */}
-            <div className="flex h-10 shrink-0 items-center rounded-sm border border-black bg-white text-black lg:h-12 lg:min-w-[6.5rem] lg:justify-between lg:px-1">
-              <button
-                type="button"
-                aria-label="Decrease quantity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  decrement();
-                }}
-                className="flex h-full w-5 items-center justify-center text-base lg:w-7 lg:text-lg"
-              >
-                -
-              </button>
-              <span className="min-w-[1.1rem] text-center text-xs lg:min-w-[1.5rem] lg:text-base">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                aria-label="Increase quantity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  increment();
-                }}
-                className="flex h-full w-5 items-center justify-center text-base lg:w-7 lg:text-lg"
-              >
-                +
-              </button>
+              {/* Stepper: fixed compact width, never shrinks or overflows */}
+              <div className="flex h-10 shrink-0 items-center rounded-sm border border-black bg-white text-black lg:h-12 lg:min-w-[6.5rem] lg:justify-between lg:px-1">
+                <button
+                  type="button"
+                  aria-label="Decrease quantity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    decrement();
+                  }}
+                  className="flex h-full w-5 items-center justify-center text-base lg:w-7 lg:text-lg"
+                >
+                  -
+                </button>
+                <span className="min-w-[1.1rem] text-center text-xs lg:min-w-[1.5rem] lg:text-base">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Increase quantity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    increment();
+                  }}
+                  className="flex h-full w-5 items-center justify-center text-base lg:w-7 lg:text-lg"
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       </div>
     </div>
   );
