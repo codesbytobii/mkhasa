@@ -3,6 +3,7 @@
 import React from "react";
 import { Wrapper } from "../../components/ui/Wrapper";
 import { SwiperElem } from "../../components/Swiper";
+import { HeroBanner } from "../../components/HeroBanner";
 import { LatestProducts } from "../../components/LatestProducts";
 import { NewDeals } from "../../components/NewDeals";
 import { BestSellers } from "../../components/BestSellers";
@@ -12,12 +13,14 @@ import NicheFragrancesProducts from "../../components/NicheFragrancesProducts";
 import BodySlider from "./components/BoddySlider";
 
 export const Component = () => {
+  console.log({ HeroBanner });
   return (
     <main className="bg-white">
       <Wrapper>
         <h1 className="text-center">Buy Original Perfumes in Nigeria at Affordable Prices</h1>
         <div className="flex flex-col gap-8 py-2 ">
-          <SwiperElem />
+          <HeroBanner />
+          {/* <SwiperElem /> */}
         </div>
         <BrandsSlider />
         <MobileBrandSlider />
