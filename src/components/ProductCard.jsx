@@ -1,17 +1,244 @@
+// "use client";
+
+// import React, { useState } from "react";
+// import Link from "next/link";
+// import Image from "next/image";
+// import { useRouter } from "next/navigation";
+// import { cn } from "../utils/cn";
+// import { Button } from "./ui/Button";
+// import { format } from "../utils/lib";
+// import { useCartContext } from "../hooks/utils/useCart";
+// import StockNotification from "./StockNotification";
+// import { useNotificationDialogContext } from "../contexts/NotificationProvider";
+// import { ShoppingCart } from "lucide-react";
+// import { toProductPath } from "../utils/paths";
+
+// export const Product = ({
+//   product,
+//   category,
+//   originalPrice,
+//   discountedPrice,
+//   image,
+//   id,
+//   name,
+//   className,
+//   available
+// }) => {
+//   const [quantity, setQuantity] = useState(1);
+//   const [inStock, setInStock] = useState(true);
+//   const { toggleNotificationDialog } = useNotificationDialogContext()
+//   const router = useRouter();
+//   const { addToCart, setCartQuantity } = useCartContext();
+//   const productPath = toProductPath(name || product);
+
+
+
+//   const increment = () => setQuantity((prev) => prev + 1);
+//   const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+
+//   // const handleAddToCart = async (e) => {
+//   //   e.stopPropagation();
+//   //   await addToCart({
+//   //     itemId: id,
+//   //     quantity,
+//   //     applyDiscount: false,
+//   //     name,
+//   //     price: originalPrice,
+//   //     localCartImage: image,
+//   //   });
+//   //   if (window?.twq) {
+//   //     window.twq("event", "tw-pioaa-pioad", {
+//   //       value: product?.price * quantity,
+//   //       currency: "NGN",
+//   //       contents: [
+//   //         {
+//   //           content_type: "product",
+//   //           content_id: product?._id,
+//   //           content_name: product?.name,
+//   //           content_price: product?.price,
+//   //           num_items: quantity,
+//   //           content_group_id: product?.category || "discounted",
+//   //         },
+//   //       ],
+//   //       status: "started",
+//   //       conversion_id: `discount-cart-${Date.now()}`,
+//   //       // email_address: user?.email || null,
+//   //     });
+//   //   }
+//   // };
+
+//   // console.log(name)
+
+//   const FALLBACK_IMAGE = "/placeholder.jpg";
+
+//   const handleAddToCart = async (e) => {
+//     e.stopPropagation();
+
+//     try {
+//       await addToCart({
+//         itemId: id,
+//         quantity,
+//         applyDiscount: false,
+//         name,
+//         price: originalPrice,
+//         localCartImage: image,
+//       });
+
+//       // Meta Pixel: AddToCart
+//       if (typeof window !== "undefined" && typeof window.fbq === "function") {
+//         const price = Number(discountedPrice ?? originalPrice);
+
+//         window.fbq("track", "AddToCart", {
+//           content_ids: [String(id)],
+//           content_type: "product",
+//           content_name: name || product,
+//           content_category: category,
+//           value: price * quantity,
+//           currency: "NGN",
+//           num_items: quantity,
+//           contents: [
+//             {
+//               id: String(id),
+//               quantity,
+//               item_price: price,
+//             },
+//           ],
+//         });
+//       }
+
+//       // Existing X (Twitter) tracking
+//       if (typeof window !== "undefined" && window.twq) {
+//         window.twq("event", "tw-pioaa-pioad", {
+//           value: Number(discountedPrice ?? originalPrice) * quantity,
+//           currency: "NGN",
+//           contents: [
+//             {
+//               content_type: "product",
+//               content_id: id,
+//               content_name: name || product,
+//               content_price: Number(discountedPrice ?? originalPrice),
+//               num_items: quantity,
+//               content_group_id: category || "discounted",
+//             },
+//           ],
+//           status: "started",
+//           conversion_id: `discount-cart-${Date.now()}`,
+//         });
+//       }
+//     } catch (error) {
+//       console.error("Failed to add product to cart:", error);
+//     }
+//   };
+
+//   return (
+//     <div
+//       // onClick={navigateToProduct}
+//       className={cn(
+//         "bg-white border-2 border-grey rounded-sm overflow-hidden h-full flex flex-col justify-between cursor-pointer",
+//         className
+//       )}
+//     >
+//       {available === false && <span className="mt-2 mr-2 text-sm bg-[#00000060] rounded text-white px-2 py-[2px] w-fit ml-auto">Sold Out</span>}
+//       <Link href={productPath} className="w-full aspect-square relative">
+//         <Image
+//           src={image || FALLBACK_IMAGE}
+//           alt={`${product || name} product image`}
+//           fill
+//           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+//           className="object-cover"
+//         />
+//       </Link>
+
+//       <div className="px-4 pt-2 pb-4 flex text-sm flex-col flex-grow ">
+//         <Link href={productPath} className="space-y-2 mb-2">
+//           <p className="text-[#555] font-light @[240px]:text-app-ash-2   ">
+//             {category}
+//           </p>
+//           <h2 className="text-app-black font-normal  pt-1 line-clamp-2  flex-grow">
+//             {product || name}
+//           </h2>
+//         </Link>
+//         <div className="mt-auto">
+//           <Link href={productPath}
+//             className={cn("gap-3 flex-col @[240px]:flex-row @[240px]:items-center @[240px]:justify-between", available === false ? "hidden" : "flex")}
+//           >
+//             <div>
+//               {discountedPrice ? (
+//                 <div className="flex items-center gap-3 text-[16px]">
+//                   <p className="line-through text-app-ash-1 text-xs ">
+//                     ₦{format(originalPrice)}
+//                   </p>
+//                   <p className="font-bold text-[16px]">₦{format(discountedPrice)}</p>
+//                 </div>
+//               ) : (
+//                 <p className="font-bold text-[16px]">₦{format(originalPrice)}</p>
+//               )}
+//             </div>
+//           </Link>
+
+//           <div className="mt-4">
+//             {available === false ? (
+//               <Button className="btn" onClick={() => { toggleNotificationDialog(id) }}>Notify Me</Button>
+//             ) : (
+//               <div className="flex gap-2 justify-center w-full">
+//                 <Button
+//                   variant="rectangle"
+//                   className="w-full rounded-none text-xs px-2 lg:px-2 h-10 lg:h-12 bg-transparent transition duration-300 hover:bg-black hover:text-white text-black border-black border-2"
+//                   onClick={handleAddToCart}
+//                 >
+//                   <ShoppingCart className="w-4 lg:w-5" />
+//                 </Button>
+//                 <div className="flex items-center justify-between lg:text-lg w-full border border-black bg-black text-white">
+//                   <button
+//                     onClick={(e) => {
+//                       e.stopPropagation();
+//                       decrement();
+//                     }}
+//                     className="pl-1 md:pl-2 lg:text-xl py-1"
+//                   >
+//                     -
+//                   </button>
+//                   <span className="px-0 text-xs lg:px-0 lg:text-base">
+//                     {quantity}
+//                   </span>
+//                   <button
+//                     onClick={(e) => {
+//                       e.stopPropagation();
+//                       increment();
+//                     }}
+//                     className="pr-1 md:pr-2 lg:text-xl py-1"
+//                   >
+//                     +
+//                   </button>
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
 "use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { cn } from "../utils/cn";
 import { Button } from "./ui/Button";
 import { format } from "../utils/lib";
 import { useCartContext } from "../hooks/utils/useCart";
-import StockNotification from "./StockNotification";
 import { useNotificationDialogContext } from "../contexts/NotificationProvider";
 import { ShoppingCart } from "lucide-react";
 import { toProductPath } from "../utils/paths";
+
+const FALLBACK_IMAGE = "/placeholder.jpg";
+
+// Design colours
+const PRICE_COLOR = "#000000"; // normal / original price
+const DISCOUNT_COLOR = "#16834A"; // discounted price
+const STRIKE_COLOR = "#D0172B"; // cancelled original price
 
 export const Product = ({
   product,
@@ -22,54 +249,32 @@ export const Product = ({
   id,
   name,
   className,
-  available
+  available,
+  // new, optional props (existing pages keep working without them)
+  fragranceFamily,
+  saleActive,
 }) => {
   const [quantity, setQuantity] = useState(1);
-  const [inStock, setInStock] = useState(true);
-  const { toggleNotificationDialog } = useNotificationDialogContext()
-  const router = useRouter();
-  const { addToCart, setCartQuantity } = useCartContext();
-  const productPath = toProductPath(name || product);
+  const { toggleNotificationDialog } = useNotificationDialogContext();
+  const { addToCart } = useCartContext();
 
+  const title = name || product;
+  const productPath = toProductPath(title);
 
+  // Discount only counts when the discounted price is genuinely lower
+  const original = Number(originalPrice);
+  const discounted = Number(discountedPrice);
+  const hasDiscount =
+    Number.isFinite(original) &&
+    Number.isFinite(discounted) &&
+    discounted > 0 &&
+    discounted < original;
+  const effectivePrice = hasDiscount ? discounted : original;
+
+  const subtitle = fragranceFamily?.trim() || category;
 
   const increment = () => setQuantity((prev) => prev + 1);
   const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-
-  // const handleAddToCart = async (e) => {
-  //   e.stopPropagation();
-  //   await addToCart({
-  //     itemId: id,
-  //     quantity,
-  //     applyDiscount: false,
-  //     name,
-  //     price: originalPrice,
-  //     localCartImage: image,
-  //   });
-  //   if (window?.twq) {
-  //     window.twq("event", "tw-pioaa-pioad", {
-  //       value: product?.price * quantity,
-  //       currency: "NGN",
-  //       contents: [
-  //         {
-  //           content_type: "product",
-  //           content_id: product?._id,
-  //           content_name: product?.name,
-  //           content_price: product?.price,
-  //           num_items: quantity,
-  //           content_group_id: product?.category || "discounted",
-  //         },
-  //       ],
-  //       status: "started",
-  //       conversion_id: `discount-cart-${Date.now()}`,
-  //       // email_address: user?.email || null,
-  //     });
-  //   }
-  // };
-
-  // console.log(name)
-
-  const FALLBACK_IMAGE = "/placeholder.jpg";
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
@@ -81,42 +286,40 @@ export const Product = ({
         applyDiscount: false,
         name,
         price: originalPrice,
-        localCartImage: image,
+        localCartImage: image || FALLBACK_IMAGE,
       });
 
       // Meta Pixel: AddToCart
       if (typeof window !== "undefined" && typeof window.fbq === "function") {
-        const price = Number(discountedPrice ?? originalPrice);
-
         window.fbq("track", "AddToCart", {
           content_ids: [String(id)],
           content_type: "product",
-          content_name: name || product,
+          content_name: title,
           content_category: category,
-          value: price * quantity,
+          value: effectivePrice * quantity,
           currency: "NGN",
           num_items: quantity,
           contents: [
             {
               id: String(id),
               quantity,
-              item_price: price,
+              item_price: effectivePrice,
             },
           ],
         });
       }
 
-      // Existing X (Twitter) tracking
+      // X (Twitter) tracking
       if (typeof window !== "undefined" && window.twq) {
         window.twq("event", "tw-pioaa-pioad", {
-          value: Number(discountedPrice ?? originalPrice) * quantity,
+          value: effectivePrice * quantity,
           currency: "NGN",
           contents: [
             {
               content_type: "product",
               content_id: id,
-              content_name: name || product,
-              content_price: Number(discountedPrice ?? originalPrice),
+              content_name: title,
+              content_price: effectivePrice,
               num_items: quantity,
               content_group_id: category || "discounted",
             },
@@ -131,91 +334,126 @@ export const Product = ({
   };
 
   return (
-    <div
-      // onClick={navigateToProduct}
-      className={cn(
-        "bg-white border-2 border-grey rounded-sm overflow-hidden h-full flex flex-col justify-between cursor-pointer",
-        className
-      )}
-    >
-      {available === false && <span className="mt-2 mr-2 text-sm bg-[#00000060] rounded text-white px-2 py-[2px] w-fit ml-auto">Sold Out</span>}
-      <Link href={productPath} className="w-full aspect-square relative">
-        <Image
-          src={image || FALLBACK_IMAGE}
-          alt={`${product || name} product image`}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-          className="object-cover"
-        />
-      </Link>
-
-      <div className="px-4 pt-2 pb-4 flex text-sm flex-col flex-grow ">
-        <Link href={productPath} className="space-y-2 mb-2">
-          <p className="text-[#555] font-light @[240px]:text-app-ash-2   ">
-            {category}
-          </p>
-          <h2 className="text-app-black font-normal  pt-1 line-clamp-2  flex-grow">
-            {product || name}
-          </h2>
+    <div className={cn("flex h-full flex-col bg-white", className)}>
+      {/* Image */}
+      <div className="relative aspect-square w-full overflow-hidden rounded-sm bg-[#F5F5F5]">
+        <Link href={productPath} className="absolute inset-0 block">
+          <Image
+            src={image || FALLBACK_IMAGE}
+            alt={`${title} product image`}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+            className="object-contain p-3"
+          />
         </Link>
-        <div className="mt-auto">
-          <Link href={productPath}
-            className={cn("gap-3 flex-col @[240px]:flex-row @[240px]:items-center @[240px]:justify-between", available === false ? "hidden" : "flex")}
-          >
-            <div>
-              {discountedPrice ? (
-                <div className="flex items-center gap-3 text-[16px]">
-                  <p className="line-through text-app-ash-1 text-xs ">
-                    ₦{format(originalPrice)}
-                  </p>
-                  <p className="font-bold text-[16px]">₦{format(discountedPrice)}</p>
-                </div>
+
+        {hasDiscount && (
+          <span className="pointer-events-none absolute left-0 top-0 bg-black px-2 py-1 text-[10px] font-semibold uppercase leading-tight text-white">
+            Black
+            <br />
+            Friday
+          </span>
+        )}
+
+        {available === false && (
+          <span className="pointer-events-none absolute right-2 top-2 rounded bg-[#00000099] px-2 py-[2px] text-xs text-white">
+            Sold Out
+          </span>
+        )}
+      </div>
+
+      {/* Details */}
+      <div className="flex flex-grow flex-col pt-3 text-sm">
+        <Link href={productPath} className="block">
+          <h2 className="line-clamp-2 min-h-[2.5rem] font-bold text-black">
+            {title}
+          </h2>
+          {subtitle && (
+            <p className="mt-1 line-clamp-1 text-xs font-light text-[#666666]">
+              {subtitle}
+            </p>
+          )}
+
+          {available !== false && (
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+              {hasDiscount ? (
+                <>
+                  <span
+                    className="text-xs line-through decoration-1"
+                    style={{textDecorationColor: STRIKE_COLOR }}
+                  >
+                    ₦{format(original)}
+                  </span>
+                  <span
+                    className="text-base font-bold"
+                    style={{ color: DISCOUNT_COLOR }}
+                  >
+                    ₦{format(discounted)}
+                  </span>
+                </>
               ) : (
-                <p className="font-bold text-[16px]">₦{format(originalPrice)}</p>
+                <span
+                  className="text-base font-bold"
+                  style={{ color: PRICE_COLOR }}
+                >
+                  ₦{format(original)}
+                </span>
               )}
             </div>
-          </Link>
+          )}
+        </Link>
 
-          <div className="mt-4">
-            {available === false ? (
-              <Button className="btn" onClick={() => { toggleNotificationDialog(id) }}>Notify Me</Button>
-            ) : (
-              <div className="flex gap-2 justify-center w-full">
-                <Button
-                  variant="rectangle"
-                  className="w-full rounded-none text-xs px-2 lg:px-2 h-10 lg:h-12 bg-transparent transition duration-300 hover:bg-black hover:text-white text-black border-black border-2"
-                  onClick={handleAddToCart}
+        {/* Actions */}
+        <div className="mt-auto pt-3">
+          {available === false ? (
+            <Button
+              className="btn w-full"
+              onClick={() => toggleNotificationDialog(id)}
+            >
+              Notify Me
+            </Button>
+          ) : (
+            <div className="flex w-full items-stretch gap-2">
+              <button
+                type="button"
+                aria-label={`Add ${title} to cart`}
+                onClick={handleAddToCart}
+                className="flex h-10 flex-1 items-center justify-center bg-black text-white transition-colors duration-200 hover:bg-[#333333] lg:h-12"
+              >
+                <ShoppingCart className="h-4 w-4 lg:h-5 lg:w-5" />
+              </button>
+
+              <div className="flex h-10 items-center justify-between rounded-sm border border-black bg-white px-1 text-black lg:h-12 lg:min-w-[6.5rem] lg:px-2">
+                <button
+                  type="button"
+                  aria-label="Decrease quantity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    decrement();
+                  }}
+                  className="px-1 text-base lg:text-lg"
                 >
-                  <ShoppingCart className="w-4 lg:w-5" />
-                </Button>
-                <div className="flex items-center justify-between lg:text-lg w-full border border-black bg-black text-white">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      decrement();
-                    }}
-                    className="pl-1 md:pl-2 lg:text-xl py-1"
-                  >
-                    -
-                  </button>
-                  <span className="px-0 text-xs lg:px-0 lg:text-base">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      increment();
-                    }}
-                    className="pr-1 md:pr-2 lg:text-xl py-1"
-                  >
-                    +
-                  </button>
-                </div>
+                  -
+                </button>
+                <span className="px-1 text-xs lg:text-base">{quantity}</span>
+                <button
+                  type="button"
+                  aria-label="Increase quantity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    increment();
+                  }}
+                  className="px-1 text-base lg:text-lg"
+                >
+                  +
+                </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+export default Product;

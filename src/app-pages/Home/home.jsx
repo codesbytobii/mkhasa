@@ -13,7 +13,6 @@ import NicheFragrancesProducts from "../../components/NicheFragrancesProducts";
 import BodySlider from "./components/BoddySlider";
 
 export const Component = () => {
-  console.log({ HeroBanner });
   return (
     <main className="bg-white">
       <Wrapper>
