@@ -12,6 +12,8 @@ export const LatestProducts = ({ horizontalOnSmallScreens = true }) => {
   const { latestProducts } = useLoaderData();
   const ref = useRef();
 
+  console.log(latestProducts?.[0]);
+
   const { getHandlers, setElement } = useLongPress(ref.current);
 
   useEffect(() => {

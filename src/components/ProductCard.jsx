@@ -250,7 +250,6 @@ export const Product = ({
   name,
   className,
   available,
-  // new, optional props (existing pages keep working without them)
   fragranceFamily,
   saleActive,
 }) => {
@@ -263,6 +262,7 @@ export const Product = ({
 
   // Discount only counts when the discounted price is genuinely lower
   const original = Number(originalPrice);
+  console.log(product);
   const discounted = Number(discountedPrice);
   const hasDiscount =
     Number.isFinite(original) &&

@@ -161,7 +161,8 @@ export const Component = () => {
                               product={product.name}
                               name={product.name}
                               category={product.category}
-                              originalPrice={product.price}
+                              // originalPrice={product.price}
+                              originalPrice={product.originalPrice}
                               discountedPrice={product?.discountedPrice}
                               image={product.mainImage}
                               id={product._id}
