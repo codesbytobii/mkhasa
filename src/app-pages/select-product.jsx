@@ -390,6 +390,15 @@ export const Component = ({
     });
   };
 
+  // Discount only counts when the discounted price is genuinely lower
+  const originalPriceNum = Number(product?.originalPrice ?? product?.price);
+  const discountedPriceNum = Number(product?.discountedPrice);
+  const hasDiscount =
+    Number.isFinite(originalPriceNum) &&
+    Number.isFinite(discountedPriceNum) &&
+    discountedPriceNum > 0 &&
+    discountedPriceNum < originalPriceNum;
+
   if (isLoading) return <LoadingSpinner />;
   if (!product) return (
     <Wrapper className="py-16 text-center">
@@ -599,10 +608,32 @@ export const Component = ({
               )}
 
               <div className={cn("flex items-center justify-between gap-4 my-4", product?.available === false ? "hidden" : "flex")}>
-                <div className="md:border-y-[1px] md:border-t-black">
+                {/* <div className="md:border-y-[1px] md:border-t-black">
                   <p className="md:text-3xl text-[24px] font-medium text-[#020817]">
                     ₦<span className="font-inter">{format(product?.price)}</span>
                   </p>
+                </div> */}
+                <div className="md:border-y-[1px] md:border-t-black">
+                  {hasDiscount ? (
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <p
+                        className="text-base md:text-xl text-black line-through decoration-1"
+                        style={{ textDecorationColor: "#D0172B" }}
+                      >
+                        ₦<span className="font-inter">{format(originalPriceNum)}</span>
+                      </p>
+                      <p
+                        className="md:text-3xl text-[24px] font-medium"
+                        style={{ color: "#16834A" }}
+                      >
+                        ₦<span className="font-inter">{format(discountedPriceNum)}</span>
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="md:text-3xl text-[24px] font-medium text-black">
+                      ₦<span className="font-inter">{format(product?.price)}</span>
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center bg-[#F5F5F5]">
                   <button onClick={decrease} className="h-12 w-14 aspect-square grid place-items-center font-medium">
@@ -718,7 +749,9 @@ export const Component = ({
                       product={item?.name || "Product Title"}
                       name={item?.name || "Product Title"}
                       category={item?.category}
-                      originalPrice={item?.price}
+                      originalPrice={item?.originalPrice ?? item?.price}
+                      discountedPrice={item?.discountedPrice}
+                      fragranceFamily={item?.fragranceFamily}
                       available={item?.available}
                       image={item?.productImage || item?.mainImage}
                       className="w-[13rem] md:w-[17rem]"
@@ -743,7 +776,9 @@ export const Component = ({
                       product={item?.name || "Product Title"}
                       name={item?.name || "Product Title"}
                       category={item?.category}
-                      originalPrice={item?.price}
+                      originalPrice={item?.originalPrice ?? item?.price}
+                      discountedPrice={item?.discountedPrice}
+                      fragranceFamily={item?.fragranceFamily}
                       available={item?.available}
                       image={item?.productImage || item?.mainImage}
                       className="w-[13rem] md:w-[17rem]"
@@ -765,10 +800,12 @@ export const Component = ({
                     <Product
                       key={item?._id}
                       id={item?._id}
+                      originalPrice={item?.originalPrice ?? item?.price}
+                      discountedPrice={item?.discountedPrice}
                       product={item?.name || "Product Title"}
                       name={item?.name || "Product Title"}
                       category={item?.category}
-                      originalPrice={item?.price}
+                      fragranceFamily={item?.fragranceFamily}
                       available={item?.available}
                       image={item?.productImage || item?.mainImage}
                       className="w-[13rem] md:w-[17rem]"
