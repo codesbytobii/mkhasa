@@ -188,7 +188,7 @@ export const Component = () => {
                   name={product.name}
                   category={product.category}
                   fragranceFamily={product.fragranceFamily}
-                  originalPrice={product.price}
+                  originalPrice={product.originalPrice}
                   discountedPrice={product?.discountedPrice}
                   image={product.mainImage || product.imageUrl || FALLBACK_IMAGE}
                   id={product._id}
