@@ -1,12 +1,14 @@
 import Link from "next/link";
 import image2 from "../assets/images/slide2desk.webp";
 import image2mob from "../assets/images/slide2mob.jpeg";
+import desktopHero from "../assets/images/hero_banner.webp";
+import mobileHero from "../assets/images/hero_banner_mobile.webp";
 import { toProductPath } from "../utils/paths";
 // import amberDesktop from "../assets/images/hero section desktop (5).jpg";
 
 export const SwiperCard = () => {
-  const image2Src = image2?.src || Assaf;
-  const image2mobSrc = image2mob?.src || Assaf;
+  const image2Src = desktopHero?.src || Assaf;
+  const image2mobSrc = mobileHero?.src || Assaf;
 
   return (
 

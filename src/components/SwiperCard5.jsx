@@ -1,11 +1,13 @@
 
 import image4 from "../assets/images/slide4desk.webp";
 import image4mob from "../assets/images/slide4mob.webp";
+import desktopHero from "../assets/images/blackfriday3desktop.webp";
+import mobileHero from "../assets/images/blackfriday3mobile.webp";
 import Link from "next/link";
 import { toProductPath } from "../utils/paths";
 export const SwiperCard5 = () => {
-  const image4Src = image4?.src || Assaf;
-  const image4mobSrc = image4mob?.src || Assaf;
+  const image4Src = desktopHero?.src || Assaf;
+  const image4mobSrc = mobileHero?.src || Assaf;
 
   return (
 

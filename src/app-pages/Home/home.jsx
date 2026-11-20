@@ -18,8 +18,8 @@ export const Component = () => {
       <Wrapper>
         <h1 className="text-center">Buy Original Perfumes in Nigeria at Affordable Prices</h1>
         <div className="flex flex-col gap-8 py-2 ">
-          <HeroBanner />
-          {/* <SwiperElem /> */}
+          {/* <HeroBanner /> */}
+          <SwiperElem />
         </div>
         <BrandsSlider />
         <MobileBrandSlider />

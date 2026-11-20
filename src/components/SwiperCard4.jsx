@@ -1,12 +1,13 @@
 import { Button } from "./ui/Button";
 import image3 from "../assets/images/slide3desk.webp";
 import image3mob from "../assets/images/slide3mob.webp";
-// import bruleeDesktop from "../assets/images/hero section desktop (2).jpg";
+import desktopHero from "../assets/images/blackfriday2desktop.webp";
+import mobileHero from "../assets/images/blackfriday2mobile.webp";
 import Link from "next/link";
 import { toProductPath } from "../utils/paths";
 export const SwiperCard4 = () => {
-  const image3Src = image3?.src || aura;
-  const image3mobSrc = image3mob?.src || aura;
+  const image3Src = desktopHero?.src || aura;
+  const image3mobSrc = mobileHero?.src || aura;
 
   return (
 

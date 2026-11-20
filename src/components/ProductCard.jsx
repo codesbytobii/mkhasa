@@ -262,7 +262,6 @@ export const Product = ({
 
   // Discount only counts when the discounted price is genuinely lower
   const original = Number(originalPrice);
-  console.log(product);
   const discounted = Number(discountedPrice);
   const hasDiscount =
     Number.isFinite(original) &&
@@ -341,7 +340,7 @@ export const Product = ({
       )}
     >
       {/* Image */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-sm bg-[#F5F5F5]">
+      <div className="relative aspect-square w-full overflow-hidden">
         <Link href={productPath} className="absolute inset-0 block">
           <Image
             src={image || FALLBACK_IMAGE}
