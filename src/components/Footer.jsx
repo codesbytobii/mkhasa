@@ -62,7 +62,7 @@ export const Footer = () => {
               <p className="w-full py-2 inline-block">
                 Call Us:{" "}
                 <span>
-                  <br /> +234 901 389 7261 (Sales)
+                  <br /> +234 901 389 8261 (Sales)
                   <br />+234 913 145 1391 (Customer Care)
                 </span>
               </p>
