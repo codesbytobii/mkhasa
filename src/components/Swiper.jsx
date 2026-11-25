@@ -90,7 +90,7 @@ export const SwiperElem = () => {
             <SwiperCard />
           </div>
         </swiper-slide>
-        {/* <swiper-slide
+        <swiper-slide
           style={{
             borderRadius: 24,
             overflow: "hidden",
@@ -109,7 +109,7 @@ export const SwiperElem = () => {
           <div className="h-[273px] md:h-[434px] ">
             <SwiperCard1 />
           </div>
-        </swiper-slide> */}
+        </swiper-slide>
       </swiper-container>
 
       <button className="swiper-button-prev flex absolute bg-[#3333] w-12 h-12 z-10 left-3 top-1/2 items-center justify-center rounded-full">

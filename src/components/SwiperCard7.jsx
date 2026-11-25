@@ -1,5 +1,7 @@
-import image5 from "../assets/images/slide5desk.webp";
-import image5mob from "../assets/images/slide5mob.jpeg";
+// import image5 from "../assets/images/slide5desk.webp";
+// import image5mob from "../assets/images/slide5mob.jpeg";
+import image5 from "../assets/images/desktopMyk.webp";
+import image5mob from "../assets/images/mykonos.webp";
 import Link from "next/link";
 import { toProductPath } from "../utils/paths";
 export const SwiperCard7 = () => {
@@ -9,7 +11,8 @@ export const SwiperCard7 = () => {
   return (
 
     <div className="max-h-screen w-full rounded-3xl md:h-screen overflow-y-hidden   ">
-      <Link href={toProductPath("Amouage Jubilation 40 Extrait de Parfum 100ml")} style={{ display: "contents" }}>
+      {/* <Link href={toProductPath("Amouage Jubilation 40 Extrait de Parfum 100ml")} style={{ display: "contents" }}> */}
+      <Link href="/brands/mykonos" style={{ display: "contents" }}>
         <div className="bg-fifth-card-image h-screen">
           <div className="">
             <img

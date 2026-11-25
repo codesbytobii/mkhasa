@@ -1,6 +1,8 @@
 import Link from "next/link";
-import image1 from "../assets/images/slide1desk.webp";
-import image1mob from "../assets/images/slide1mob.jpeg";
+// import image1 from "../assets/images/slide1desk.webp";
+// import image1mob from "../assets/images/slide1mob.jpeg";
+import image1 from "../assets/images/desktopRay.webp";
+import image1mob from "../assets/images/rayhaan.webp";
 import { toProductPath } from "../utils/paths";
 
 export const SwiperCard1 = () => {
@@ -9,9 +11,10 @@ export const SwiperCard1 = () => {
 
   return (
     <div className="w-full max-h-screen rounded-3xl md:h-screen overflow-y-hidden   ">
-      <Link href={toProductPath("Aura Fragrances Vanilla Power Eau de Parfum 100ml")}
+      {/* <Link href={toProductPath("Aura Fragrances Vanilla Power Eau de Parfum 100ml")}
         style={{ display: "contents" }}
-      >
+      > */}
+      <Link href="/brands/rayhaan" style={{ display: "contents" }}>
         <div className="bg-image h-screen">
           <div className="">
             <img
