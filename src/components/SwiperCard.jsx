@@ -13,7 +13,8 @@ export const SwiperCard = () => {
   return (
 
     <div className="w-full max-h-screen rounded-3xl md:h-screen overflow-y-hidden   "> 
-    <Link href={toProductPath("Assaf Tobacco Jam 50 Extrait de Parfum 100ml")} style={{ display: "contents" }}>     
+    {/* <Link href={toProductPath("Assaf Tobacco Jam 50 Extrait de Parfum 100ml")} style={{ display: "contents" }}>*/}
+    <Link href="/brands/rayhaan" style={{ display: "contents" }}>
      <div className="bg-image1 h-screen">
          <div className="">
            <img

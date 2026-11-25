@@ -12,7 +12,8 @@ export const SwiperCard4 = () => {
   return (
 
     <div className="max-h-screen w-full rounded-3xl md:h-screen overflow-y-hidden   ">
-      <Link href={toProductPath("Lattafa Khamrah Waha Eau de Parfum 100ml")} style={{ display: "contents" }}>
+      {/* <Link href={toProductPath("Lattafa Khamrah Waha Eau de Parfum 100ml")} style={{ display: "contents" }}> */}
+      <Link href="/brands/mykonos" style={{ display: "contents" }}>
         <div className="bg-second-card-image h-screen">
           <div className="">
 
